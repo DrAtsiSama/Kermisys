@@ -1,5 +1,8 @@
 # Étape 1 : Construire le binaire Go
-FROM golang:1.18 AS builder
+FROM golang:1.22.1-alpine AS builder
+
+# Installer les outils nécessaires
+RUN apk add --no-cache gcc musl-dev
 
 # Définir le répertoire de travail à l'intérieur du conteneur
 WORKDIR /app
@@ -10,11 +13,14 @@ COPY . .
 # Télécharger les dépendances
 RUN go mod download
 
-# Compiler l'application
-RUN go build -o main ./cmd/main.go
+# Compiler l'application en statique (sans dépendance à glibc)
+RUN go build -ldflags="-w -s" -o main ./cmd/main.go
 
-# Étape 2 : Créer l'image de production
-FROM debian:buster-slim
+# Étape 2 : Créer l'image de production avec Alpine
+FROM alpine:latest
+
+# Installer libc6-compat pour la compatibilité avec glibc
+RUN apk --no-cache add libc6-compat
 
 # Définir le répertoire de travail pour l'image de production
 WORKDIR /app

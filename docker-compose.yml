@@ -5,7 +5,11 @@ services:
     ports:
       - "8082:8080"
     environment:
-      - DATABASE_URL=postgres://user:password@db:5432/kermesse_db
+      - DB_HOST=db
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=kermesse_db
+      - DB_PORT=5432
     depends_on:
       - db
 
@@ -14,7 +18,7 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: kermesse_db
+      POSTGRES_DB: kermisys_db
     ports:
       - "5433:5432"
     volumes:

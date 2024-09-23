@@ -1,15 +1,21 @@
 package routes
 
 import (
-    "github.com/gin-gonic/gin"
-    "kermisys/controllers"
+	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter() *gin.Engine {
-    router := gin.Default()
+// InitRoutes initializes all routes for the application
+func InitRoutes() *gin.Engine {
+	r := gin.Default()
 
-    // Exemple de route utilisateur
-    router.GET("/users", controllers.GetUsers)
+	// Load individual route groups
+	initializeAdminRoutes(r)
+	initializeParentRoutes(r)
+	initializeStandRoutes(r)
+	initializeUserRoutes(r)
+	initializeChatRoutes(r)
+	initializePaymentRoutes(r)
+	initializeStatisticsRoutes(r)
 
-    return router
+	return r
 }
