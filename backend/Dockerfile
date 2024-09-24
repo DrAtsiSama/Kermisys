@@ -14,7 +14,7 @@ COPY . .
 RUN go mod download
 
 # Compiler l'application en statique (sans dépendance à glibc)
-RUN go build -ldflags="-w -s" -o main ./cmd/main.go
+RUN go build -ldflags="-w -s" -o main ./main.go
 
 # Étape 2 : Créer l'image de production avec Alpine
 FROM alpine:latest

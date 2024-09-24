@@ -1,0 +1,387 @@
+basePath: /
+definitions:
+  models.BuyTokensResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.BuyTombolaTicketResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.CreateUserResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.DistributeTokensResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.DrawTombolaResponse:
+    properties:
+      winner:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.PaymentRequest:
+    properties:
+      amount:
+        description: Montant à payer en centimes
+        type: integer
+      currency:
+        description: 'Devise (ex: ''EUR'')'
+        type: string
+      description:
+        description: Description du paiement
+        type: string
+      source:
+        description: 'Source de paiement (ex: un token de carte)'
+        type: string
+    type: object
+  models.PaymentResponse:
+    properties:
+      chargeID:
+        description: L'identifiant du paiement
+        type: string
+    type: object
+  models.StandInteractionResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.TokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  models.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: contact@dratsisama.com
+    name: Dratsi Sama
+    url: http://dratsisama.com
+  description: Documentation de l'API pour la gestion des kermesses scolaires avec
+    fonctionnalités de stand, tombola, utilisateurs, etc.
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  title: Kermisys API Documentation
+  version: "1.0"
+paths:
+  /interact-stand:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Permet à un utilisateur d'interagir avec un stand spécifique (nourriture,
+        boisson, activité, etc.)
+      parameters:
+      - description: Nom d'utilisateur
+        in: header
+        name: username
+        required: true
+        type: string
+      - description: 'Type de stand (ex: ''food'', ''drink'', ''activity'')'
+        in: formData
+        name: stand
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.StandInteractionResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Interaction avec un stand
+      tags:
+      - Stand
+  /login:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Authentifie un utilisateur et retourne un token JWT
+      parameters:
+      - description: Nom d'utilisateur
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 'Rôle de l''utilisateur (ex: ''parent'', ''enfant'', ''organisateur'')'
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Authentification de l'utilisateur
+      tags:
+      - Authentification
+  /payment:
+    post:
+      consumes:
+      - application/json
+      description: Traite une demande de paiement en fonction des détails fournis
+      parameters:
+      - description: Données de paiement
+        in: body
+        name: paymentData
+        required: true
+        schema:
+          $ref: '#/definitions/models.PaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.PaymentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Processus de paiement
+      tags:
+      - Paiement
+  /statistics:
+    get:
+      description: Renvoie les statistiques actuelles du système
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Statistiques actuelles
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Récupérer les statistiques
+      tags:
+      - Statistiques
+  /tokens/buy:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Permet à un utilisateur d'acheter des jetons
+      parameters:
+      - description: Nom d'utilisateur
+        in: header
+        name: username
+        required: true
+        type: string
+      - description: Nombre de jetons à acheter
+        in: formData
+        name: amount
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BuyTokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Achat de jetons
+      tags:
+      - Jetons
+  /tokens/distribute:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Permet à un parent de distribuer des jetons à son enfant
+      parameters:
+      - description: Nom d'utilisateur du parent
+        in: header
+        name: username
+        required: true
+        type: string
+      - description: Nom d'utilisateur de l'enfant
+        in: formData
+        name: child
+        required: true
+        type: string
+      - description: Nombre de jetons à distribuer
+        in: formData
+        name: amount
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DistributeTokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Distribution de jetons
+      tags:
+      - Jetons
+  /tombola/buy:
+    post:
+      description: Permet à un utilisateur d'acheter un billet de tombola
+      parameters:
+      - description: Nom d'utilisateur
+        in: header
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BuyTombolaTicketResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Acheter un billet de tombola
+      tags:
+      - Tombola
+  /tombola/draw:
+    post:
+      description: Effectue le tirage de la tombola et retourne le gagnant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DrawTombolaResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Tirage de la tombola
+      tags:
+      - Tombola
+  /users:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Crée un nouvel utilisateur avec le nom d'utilisateur et le rôle
+        spécifiés
+      parameters:
+      - description: Nom d'utilisateur
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 'Rôle de l''utilisateur (ex: ''parent'', ''enfant'', ''organisateur'')'
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Créer un nouvel utilisateur
+      tags:
+      - Utilisateurs
+  /users/{username}:
+    get:
+      description: Récupère les informations d'un utilisateur à partir de son nom
+        d'utilisateur
+      parameters:
+      - description: Nom d'utilisateur
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Récupérer les détails d'un utilisateur
+      tags:
+      - Utilisateurs
+  /ws/chat:
+    get:
+      description: Établit une connexion WebSocket pour la fonctionnalité de chat
+        en temps réel
+      responses:
+        "101":
+          description: Switching Protocols" - WebSocket handshake success
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: WebSocket Chat
+      tags:
+      - WebSocket
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

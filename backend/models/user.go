@@ -14,5 +14,5 @@ type User struct {
 	Role         string `gorm:"size:20;not null"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	DeletedAt    gorm.DeletedAt `gorm:"index" swaggerignore:"true"`
 }

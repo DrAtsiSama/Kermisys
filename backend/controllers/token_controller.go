@@ -4,38 +4,61 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dratsisama/Kermisys/backend/models" // Import des modèles
 	"github.com/dratsisama/Kermisys/backend/services"
-
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary      Achat de jetons
+// @Description  Permet à un utilisateur d'acheter des jetons
+// @Tags         Jetons
+// @Accept       x-www-form-urlencoded
+// @Produce      json
+// @Param        username  header    string  true  "Nom d'utilisateur"
+// @Param        amount    formData  int     true  "Nombre de jetons à acheter"
+// @Success      200  {object}  models.BuyTokensResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /tokens/buy [post]
 func BuyTokens(c *gin.Context) {
 	username := c.GetString("username")
 	amount, err := strconv.Atoi(c.PostForm("amount"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token amount"})
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid token amount"})
 		return
 	}
 	err = services.BuyTokens(username, amount)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Tokens bought successfully"})
+	c.JSON(http.StatusOK, models.BuyTokensResponse{Message: "Tokens bought successfully"})
 }
 
+// @Summary      Distribution de jetons
+// @Description  Permet à un parent de distribuer des jetons à son enfant
+// @Tags         Jetons
+// @Accept       x-www-form-urlencoded
+// @Produce      json
+// @Param        username  header    string  true  "Nom d'utilisateur du parent"
+// @Param        child     formData  string  true  "Nom d'utilisateur de l'enfant"
+// @Param        amount    formData  int     true  "Nombre de jetons à distribuer"
+// @Success      200  {object}  models.DistributeTokensResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /tokens/distribute [post]
 func DistributeTokens(c *gin.Context) {
 	parent := c.GetString("username")
 	child := c.PostForm("child")
 	amount, err := strconv.Atoi(c.PostForm("amount"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token amount"})
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid token amount"})
 		return
 	}
 	err = services.DistributeTokens(parent, child, amount)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Tokens distributed successfully"})
+	c.JSON(http.StatusOK, models.DistributeTokensResponse{Message: "Tokens distributed successfully"})
 }

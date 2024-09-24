@@ -2,25 +2,28 @@ package controllers
 
 import (
 	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
 
-	"github.com/dratsisama/Kermisys/backend/services"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
-// Login authenticates a user and returns a JWT token
-func Login(c *gin.Context) {
-	username := c.PostForm("username")
-	role := c.PostForm("role")
+// TestLogin vérifie que la fonction Login fonctionne correctement
+func TestLogin(t *testing.T) {
+	// Initialiser Gin
+	router := gin.Default()
+	router.POST("/login", Login)
 
-	if username == "" || role == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing username or role"})
-		return
-	}
+	// Créer une requête HTTP POST
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/login", strings.NewReader("username=test"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	token, err := services.GenerateJWT(username, role)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	// Traiter la requête avec Gin
+	router.ServeHTTP(w, req)
+
+	// Vérifier que la réponse HTTP est 200 OK
+	assert.Equal(t, http.StatusOK, w.Code)
 }

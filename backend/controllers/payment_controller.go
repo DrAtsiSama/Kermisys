@@ -3,18 +3,23 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/dratsisama/Kermisys/backend/models" // Import du modèle PaymentRequest et PaymentResponse
 	"github.com/dratsisama/Kermisys/backend/services"
 	"github.com/gin-gonic/gin"
 )
 
-// ProcessPayment processes a payment request
+// @Summary      Processus de paiement
+// @Description  Traite une demande de paiement en fonction des détails fournis
+// @Tags         Paiement
+// @Accept       json
+// @Produce      json
+// @Param        paymentData  body  models.PaymentRequest  true  "Données de paiement"
+// @Success      200  {object}  models.PaymentResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /payment [post]
 func ProcessPayment(c *gin.Context) {
-	var paymentData struct {
-		Amount      int64  `json:"amount"`
-		Currency    string `json:"currency"`
-		Description string `json:"description"`
-		Source      string `json:"source"`
-	}
+	var paymentData models.PaymentRequest
 
 	if err := c.ShouldBindJSON(&paymentData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
@@ -26,5 +31,5 @@ func ProcessPayment(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"chargeID": chargeID})
+	c.JSON(http.StatusOK, models.PaymentResponse{ChargeID: chargeID})
 }

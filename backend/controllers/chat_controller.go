@@ -7,17 +7,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Initialize WebSocket upgrader if you want to use it here
+// Initialize WebSocket upgrader to handle WebSocket connections
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-// ChatHandler handles WebSocket chat connections using gin.Context
+// @Summary      WebSocket Chat
+// @Description  Établit une connexion WebSocket pour la fonctionnalité de chat en temps réel
+// @Tags         WebSocket
+// @Success      101  {string}  string  "Switching Protocols" - WebSocket handshake success
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /ws/chat [get]
 func ChatHandler(c *gin.Context) {
-	// Use either the local upgrader or the services.Upgrader
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil) // Using the local upgrader
-	// Or, if you want to use the upgrader from services, replace it with:
-	// conn, err := services.Upgrader.Upgrade(c.Writer, c.Request, nil)
+	// Mettre à niveau la connexion HTTP vers une connexion WebSocket
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil) // Utilisation de l'upgrader local
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not upgrade to websocket"})
@@ -31,7 +34,7 @@ func ChatHandler(c *gin.Context) {
 		if err != nil {
 			break
 		}
-		// Echo the message back to the client
+		// Renvoyer le message reçu au client
 		if err := conn.WriteJSON(msg); err != nil {
 			break
 		}
