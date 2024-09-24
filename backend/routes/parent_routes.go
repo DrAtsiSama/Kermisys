@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeParentRoutes(r *gin.Engine) {
+func initializeParentRoutes(r *gin.RouterGroup) {
 	parentRoutes := r.Group("/parent")
 	{
 		// Parents can buy and distribute tokens

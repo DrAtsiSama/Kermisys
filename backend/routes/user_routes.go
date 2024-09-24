@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeUserRoutes(r *gin.Engine) {
+func initializeUserRoutes(r *gin.RouterGroup) {
 	userRoutes := r.Group("/user")
 	{
 		// General user routes

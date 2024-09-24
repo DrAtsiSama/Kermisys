@@ -47,3 +47,13 @@ type UserResponse struct {
 type CreateUserResponse struct {
 	Message string `json:"message"`
 }
+
+// LoginResponse représente la réponse réussie d'une connexion
+type LoginResponse struct {
+	Token string `json:"token"`
+}
+
+// MessageResponse représente les messages de réussite
+type MessageResponse struct {
+	Message string `json:"message"`
+}

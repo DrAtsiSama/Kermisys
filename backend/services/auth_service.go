@@ -1,42 +1,38 @@
 package services
 
 import (
-	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var jwtKey = []byte("your_secret_key")
+var jwtSecret = []byte("your_secret_key")
 
-type Claims struct {
-	Username string `json:"username"`
-	Role     string `json:"role"`
-	jwt.StandardClaims
-}
-
-// GenerateJWT generates a new JWT token for a user
+// GenerateJWT génère un jeton JWT pour l'utilisateur donné
 func GenerateJWT(username, role string) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		Username: username,
-		Role:     role,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": username,
+		"role":     role,
+		"exp":      time.Now().Add(time.Hour * 72).Unix(), // Expire dans 72 heures
+	})
+
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+
+	return tokenString, nil
 }
 
-// ValidateJWT validates a given JWT token
-func ValidateJWT(tokenStr string) (*Claims, error) {
-	claims := &Claims{}
-	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return jwtKey, nil
+// ValidateJWT vérifie si un jeton JWT est valide
+func ValidateJWT(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
 	})
-	if err != nil || !token.Valid {
-		return nil, errors.New("invalid token")
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, err
 	}
-	return claims, nil
 }

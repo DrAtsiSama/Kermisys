@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeStatisticsRoutes(r *gin.Engine) {
+func initializeStatisticsRoutes(r *gin.RouterGroup) {
 	statisticsRoutes := r.Group("/statistics")
 	{
 		// Route to view statistics

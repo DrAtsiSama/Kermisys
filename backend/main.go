@@ -44,14 +44,14 @@ func main() {
 	// Insérer les données par défaut
 	database.SeedDatabase()
 
-	// Initialiser Gin
-	router := gin.Default()
+	// // Initialiser Gin
+	// router := gin.Default()
+
+	// Configurer les autres routes de l'application
+	router := routes.InitRoutes()
 
 	// Configurer la documentation Swagger
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	// Configurer les autres routes de l'application
-	routes.InitRoutes()
 
 	// Route de bienvenue à la racine de l'API
 	router.GET("/", func(c *gin.Context) {

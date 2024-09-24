@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeAdminRoutes(r *gin.Engine) {
+func initializeAdminRoutes(r *gin.RouterGroup) {
 	adminRoutes := r.Group("/admin")
 	{
 		// Assuming admins can view all statistics and manage users

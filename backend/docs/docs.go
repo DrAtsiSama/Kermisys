@@ -70,7 +70,7 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
-                "description": "Authentifie un utilisateur et retourne un token JWT",
+                "description": "Authentifie un utilisateur et retourne un jeton JWT",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -80,7 +80,7 @@ const docTemplate = `{
                 "tags": [
                     "Authentification"
                 ],
-                "summary": "Authentification de l'utilisateur",
+                "summary": "Connexion",
                 "parameters": [
                     {
                         "type": "string",
@@ -91,8 +91,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Rôle de l'utilisateur (ex: 'parent', 'enfant', 'organisateur')",
-                        "name": "role",
+                        "description": "Mot de passe",
+                        "name": "password",
                         "in": "formData",
                         "required": true
                     }
@@ -101,7 +101,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.TokenResponse"
+                            "$ref": "#/definitions/models.LoginResponse"
                         }
                     },
                     "400": {
@@ -109,11 +109,25 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Déconnexion de l'utilisateur",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Déconnexion",
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "$ref": "#/definitions/models.MessageResponse"
                         }
                     }
                 }
@@ -158,6 +172,103 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Crée un nouvel utilisateur",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Inscription",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Nom d'utilisateur",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Mot de passe",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Rôle de l'utilisateur",
+                        "name": "role",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/reset-password": {
+            "post": {
+                "description": "Permet à un utilisateur de réinitialiser son mot de passe",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Réinitialiser le mot de passe",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Nom d'utilisateur",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Nouveau mot de passe",
+                        "name": "newPassword",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -509,6 +620,22 @@ const docTemplate = `{
                 }
             }
         },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MessageResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "models.PaymentRequest": {
             "type": "object",
             "properties": {
@@ -543,14 +670,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.TokenResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
                     "type": "string"
                 }
             }

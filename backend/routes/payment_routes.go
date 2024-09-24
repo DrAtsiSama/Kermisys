@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializePaymentRoutes(r *gin.Engine) {
+func initializePaymentRoutes(r *gin.RouterGroup) {
 	paymentRoutes := r.Group("/payment")
 	{
 		// Payment processing route

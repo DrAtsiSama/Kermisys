@@ -30,6 +30,16 @@ definitions:
       error:
         type: string
     type: object
+  models.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  models.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
   models.PaymentRequest:
     properties:
       amount:
@@ -54,11 +64,6 @@ definitions:
   models.StandInteractionResponse:
     properties:
       message:
-        type: string
-    type: object
-  models.TokenResponse:
-    properties:
-      token:
         type: string
     type: object
   models.UserResponse:
@@ -121,16 +126,16 @@ paths:
     post:
       consumes:
       - application/x-www-form-urlencoded
-      description: Authentifie un utilisateur et retourne un token JWT
+      description: Authentifie un utilisateur et retourne un jeton JWT
       parameters:
       - description: Nom d'utilisateur
         in: formData
         name: username
         required: true
         type: string
-      - description: 'Rôle de l''utilisateur (ex: ''parent'', ''enfant'', ''organisateur'')'
+      - description: Mot de passe
         in: formData
-        name: role
+        name: password
         required: true
         type: string
       produces:
@@ -139,16 +144,25 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.TokenResponse'
+            $ref: '#/definitions/models.LoginResponse'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
+      summary: Connexion
+      tags:
+      - Authentification
+  /logout:
+    post:
+      description: Déconnexion de l'utilisateur
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
           schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Authentification de l'utilisateur
+            $ref: '#/definitions/models.MessageResponse'
+      summary: Déconnexion
       tags:
       - Authentification
   /payment:
@@ -181,6 +195,71 @@ paths:
       summary: Processus de paiement
       tags:
       - Paiement
+  /register:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Crée un nouvel utilisateur
+      parameters:
+      - description: Nom d'utilisateur
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Mot de passe
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: Rôle de l'utilisateur
+        in: formData
+        name: role
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Inscription
+      tags:
+      - Authentification
+  /reset-password:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Permet à un utilisateur de réinitialiser son mot de passe
+      parameters:
+      - description: Nom d'utilisateur
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Nouveau mot de passe
+        in: formData
+        name: newPassword
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Réinitialiser le mot de passe
+      tags:
+      - Authentification
   /statistics:
     get:
       description: Renvoie les statistiques actuelles du système

@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeChatRoutes(r *gin.Engine) {
+func initializeChatRoutes(r *gin.RouterGroup) {
 	chatRoutes := r.Group("/chat")
 	{
 		// WebSocket chat route

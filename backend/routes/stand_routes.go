@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func initializeStandRoutes(r *gin.Engine) {
+func initializeStandRoutes(r *gin.RouterGroup) {
 	standRoutes := r.Group("/stand")
 	{
 		// Routes to interact with stands
