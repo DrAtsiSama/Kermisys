@@ -31,6 +31,7 @@ func InitRoutes() *gin.Engine {
 	protected := r.Group("/")
 	protected.Use(middlewares.AuthMiddleware())
 	{
+		protected.GET("/:username", controllers.GetUserHandler)
 		initializeChatRoutes(protected)
 		initializeAdminRoutes(protected)
 		initializeStandRoutes(protected)

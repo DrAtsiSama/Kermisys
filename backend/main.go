@@ -17,7 +17,7 @@ import (
 // @version         1.0
 // @description     Documentation de l'API pour la gestion des kermesses scolaires avec fonctionnalités de stand, tombola, utilisateurs, etc.
 
-// @contact.name    Dratsi Sama
+// @contact.name    Dr_AtsiSama
 // @contact.url     http://dratsisama.com
 // @contact.email   contact@dratsisama.com
 
@@ -27,7 +27,7 @@ import (
 // @host            localhost:8080
 // @BasePath        /
 
-// @securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey Bearer
 // @in header
 // @name Authorization
 
@@ -51,7 +51,7 @@ func main() {
 	router := routes.InitRoutes()
 
 	// Configurer la documentation Swagger
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8080/swagger/doc.json"), ginSwagger.PersistAuthorization(true)))
 
 	// Route de bienvenue à la racine de l'API
 	router.GET("/", func(c *gin.Context) {

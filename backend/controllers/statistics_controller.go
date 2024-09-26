@@ -75,7 +75,7 @@ func GetOrganisateurStats(c *gin.Context) {
 // @Tags         Statistiques
 // @Produce      json
 // @Success      200  {object}  map[string]interface{} "Statistiques actuelles"
-// @Router       /statistics [get]
+// @Router       /stats [get]
 func GetStatisticsHandler(c *gin.Context) {
 	stats := services.GetStatistics()
 	c.JSON(http.StatusOK, stats)

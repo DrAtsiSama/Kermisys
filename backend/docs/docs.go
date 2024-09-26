@@ -10,7 +10,7 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Dratsi Sama",
+            "name": "Dr_AtsiSama",
             "url": "http://dratsisama.com",
             "email": "contact@dratsisama.com"
         },
@@ -492,7 +492,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/statistics": {
+        "/stats": {
             "get": {
                 "description": "Renvoie les statistiques actuelles du système",
                 "produces": [
@@ -788,7 +788,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/user": {
             "post": {
                 "description": "Crée un nouvel utilisateur avec le nom d'utilisateur, l'adresse e-mail, et le rôle spécifiés",
                 "consumes": [
@@ -840,8 +840,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{username}": {
+        "/user/{username}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Récupère les informations d'un utilisateur à partir de son nom d'utilisateur",
                 "produces": [
                     "application/json"
@@ -1222,7 +1227,7 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "Bearer": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

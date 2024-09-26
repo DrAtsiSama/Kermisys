@@ -15,7 +15,8 @@ import (
 // @Param        username  path  string  true  "Nom d'utilisateur"
 // @Success      200  {object}  models.UserResponse
 // @Failure      404  {object}  models.ErrorResponse
-// @Router       /users/{username} [get]
+// @Router       /user/{username} [get]
+// @Security Bearer
 func GetUserHandler(c *gin.Context) {
 	username := c.Param("username")
 	user, exists := services.GetUser(username)
@@ -41,7 +42,7 @@ func GetUserHandler(c *gin.Context) {
 // @Param        role      formData  string  true  "Rôle de l'utilisateur (ex: 'parent', 'enfant', 'organisateur')"
 // @Success      201  {object}  models.CreateUserResponse
 // @Failure      400  {object}  models.ErrorResponse
-// @Router       /users [post]
+// @Router       /user [post]
 func CreateUserHandler(c *gin.Context) {
 	username := c.PostForm("username")
 	email := c.PostForm("email")

@@ -4,7 +4,7 @@
         "description": "Documentation de l'API pour la gestion des kermesses scolaires avec fonctionnalités de stand, tombola, utilisateurs, etc.",
         "title": "Kermisys API Documentation",
         "contact": {
-            "name": "Dratsi Sama",
+            "name": "Dr_AtsiSama",
             "url": "http://dratsisama.com",
             "email": "contact@dratsisama.com"
         },
@@ -486,7 +486,7 @@
                 }
             }
         },
-        "/statistics": {
+        "/stats": {
             "get": {
                 "description": "Renvoie les statistiques actuelles du système",
                 "produces": [
@@ -782,7 +782,7 @@
                 }
             }
         },
-        "/users": {
+        "/user": {
             "post": {
                 "description": "Crée un nouvel utilisateur avec le nom d'utilisateur, l'adresse e-mail, et le rôle spécifiés",
                 "consumes": [
@@ -834,8 +834,13 @@
                 }
             }
         },
-        "/users/{username}": {
+        "/user/{username}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Récupère les informations d'un utilisateur à partir de son nom d'utilisateur",
                 "produces": [
                     "application/json"
@@ -1216,7 +1221,7 @@
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "Bearer": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

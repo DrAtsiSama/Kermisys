@@ -199,7 +199,7 @@ host: localhost:8080
 info:
   contact:
     email: contact@dratsisama.com
-    name: Dratsi Sama
+    name: Dr_AtsiSama
     url: http://dratsisama.com
   description: Documentation de l'API pour la gestion des kermesses scolaires avec
     fonctionnalités de stand, tombola, utilisateurs, etc.
@@ -521,7 +521,7 @@ paths:
       summary: Mettre à jour un stand
       tags:
       - Stands
-  /statistics:
+  /stats:
     get:
       description: Renvoie les statistiques actuelles du système
       produces:
@@ -717,7 +717,7 @@ paths:
       summary: Tirage de la tombola
       tags:
       - Tombola
-  /users:
+  /user:
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -753,7 +753,7 @@ paths:
       summary: Créer un nouvel utilisateur
       tags:
       - Utilisateurs
-  /users/{username}:
+  /user/{username}:
     get:
       description: Récupère les informations d'un utilisateur à partir de son nom
         d'utilisateur
@@ -774,6 +774,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Récupérer les détails d'un utilisateur
       tags:
       - Utilisateurs
@@ -808,7 +810,7 @@ paths:
       tags:
       - WebSocket
 securityDefinitions:
-  ApiKeyAuth:
+  Bearer:
     in: header
     name: Authorization
     type: apiKey
