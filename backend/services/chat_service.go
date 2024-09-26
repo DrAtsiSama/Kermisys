@@ -1,54 +1,54 @@
 package services
 
 import (
+	"log"
 	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
-var clients = make(map[*websocket.Conn]bool)
+type Message struct {
+	SenderID   string `json:"sender_id"`
+	ReceiverID string `json:"receiver_id"`
+	Content    string `json:"content"`
+}
+
+var clients = make(map[string]*websocket.Conn)
 var broadcast = make(chan Message)
-var upgrader = websocket.Upgrader{}
 var chatMu sync.Mutex
 
-type Message struct {
-	Username string `json:"username"`
-	Content  string `json:"content"`
+// RegisterClient enregistre un client avec son ID
+func RegisterClient(userID string, conn *websocket.Conn) {
+	chatMu.Lock()
+	defer chatMu.Unlock()
+	clients[userID] = conn
+	log.Printf("Utilisateur %s enregistré", userID)
 }
 
-// HandleConnections upgrades HTTP requests to WebSocket connections
-func HandleConnections(conn *websocket.Conn) {
-	defer func() {
-		chatMu.Lock()
-		delete(clients, conn)
-		chatMu.Unlock()
+// UnregisterClient supprime un client de la liste
+func UnregisterClient(userID string) {
+	chatMu.Lock()
+	defer chatMu.Unlock()
+	if conn, ok := clients[userID]; ok {
 		conn.Close()
-	}()
-
-	clients[conn] = true
-
-	for {
-		var msg Message
-		err := conn.ReadJSON(&msg)
-		if err != nil {
-			break
-		}
-		broadcast <- msg
+		delete(clients, userID)
 	}
 }
 
-// HandleMessages handles incoming messages and broadcasts them
-func HandleMessages() {
-	for {
-		msg := <-broadcast
-		chatMu.Lock()
-		for client := range clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				client.Close()
-				delete(clients, client)
-			}
+// SendPrivateMessage envoie un message au destinataire spécifique
+func SendPrivateMessage(msg Message) {
+	chatMu.Lock()
+	defer chatMu.Unlock()
+
+	// Vérifier si le destinataire est connecté
+	if conn, ok := clients[msg.ReceiverID]; ok {
+		if err := conn.WriteJSON(msg); err != nil {
+			conn.Close()
+			delete(clients, msg.ReceiverID)
 		}
-		chatMu.Unlock()
+	} else {
+		// Si le destinataire n'est pas trouvé
+		log.Printf("Destinataire %s non trouvé ou non connecté", msg.ReceiverID)
 	}
+
 }

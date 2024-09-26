@@ -23,6 +23,44 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/forgot-password": {
+            "post": {
+                "description": "Envoie un lien de réinitialisation à l'utilisateur",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Mot de passe oublié",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Adresse e-mail",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/interact-stand": {
             "post": {
                 "description": "Permet à un utilisateur d'interagir avec un stand spécifique (nourriture, boisson, activité, etc.)",
@@ -33,7 +71,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Stand"
+                    "Stands"
                 ],
                 "summary": "Interaction avec un stand",
                 "parameters": [
@@ -209,6 +247,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Adresse e-mail",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Rôle de l'utilisateur",
                         "name": "role",
                         "in": "formData",
@@ -247,8 +292,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Nom d'utilisateur",
-                        "name": "username",
+                        "description": "Token de réinitialisation",
+                        "name": "token",
                         "in": "formData",
                         "required": true
                     },
@@ -276,6 +321,177 @@ const docTemplate = `{
                 }
             }
         },
+        "/stands": {
+            "get": {
+                "description": "Récupère la liste de tous les stands",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Récupérer tous les stands",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Stand"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Ajoute un nouveau stand",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Créer un stand",
+                "parameters": [
+                    {
+                        "description": "Détails du stand",
+                        "name": "stand",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stands/{id}": {
+            "get": {
+                "description": "Récupère un stand par son ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Récupérer un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Met à jour les détails d'un stand",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Mettre à jour un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Détails du stand",
+                        "name": "stand",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Supprime un stand par son ID",
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Supprimer un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Stand deleted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/statistics": {
             "get": {
                 "description": "Renvoie les statistiques actuelles du système",
@@ -292,6 +508,111 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/stats/kermesse/{id}": {
+            "get": {
+                "description": "Récupère les statistiques de la kermesse par ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Statistiques"
+                ],
+                "summary": "Obtenir les statistiques de la kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.KermesseStats"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stats/organisateur/{id}": {
+            "get": {
+                "description": "Récupère les statistiques de l'organisateur par ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Statistiques"
+                ],
+                "summary": "Obtenir les statistiques de l'organisateur",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de l'organisateur",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrganisateurStats"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/stats/stand/{id}": {
+            "get": {
+                "description": "Récupère les statistiques d'un stand par ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Statistiques"
+                ],
+                "summary": "Obtenir les statistiques d'un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.StandStats"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -469,7 +790,7 @@ const docTemplate = `{
         },
         "/users": {
             "post": {
-                "description": "Crée un nouvel utilisateur avec le nom d'utilisateur et le rôle spécifiés",
+                "description": "Crée un nouvel utilisateur avec le nom d'utilisateur, l'adresse e-mail, et le rôle spécifiés",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -485,6 +806,13 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Nom d'utilisateur",
                         "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Adresse e-mail",
+                        "name": "email",
                         "in": "formData",
                         "required": true
                     },
@@ -547,18 +875,39 @@ const docTemplate = `{
                 }
             }
         },
-        "/ws/chat": {
+        "/ws/private": {
             "get": {
-                "description": "Établit une connexion WebSocket pour la fonctionnalité de chat en temps réel",
+                "description": "Établit une connexion WebSocket pour la discussion privée en temps réel entre un organisateur et un gérant de stand",
                 "tags": [
                     "WebSocket"
                 ],
-                "summary": "WebSocket Chat",
+                "summary": "WebSocket Chat Privé",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Identifiant de l'utilisateur (ex : username)",
+                        "name": "userID",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "101": {
                         "description": "Switching Protocols\" - WebSocket handshake success",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
@@ -620,6 +969,58 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Kermesse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.KermesseStats": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kermesse_id": {
+                    "type": "integer"
+                },
+                "total_participants": {
+                    "type": "integer"
+                },
+                "total_revenue": {
+                    "type": "number"
+                },
+                "total_tokens_used": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.LoginResponse": {
             "type": "object",
             "properties": {
@@ -632,6 +1033,29 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.OrganisateurStats": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "organisateur_id": {
+                    "type": "integer"
+                },
+                "total_kermesses": {
+                    "type": "integer"
+                },
+                "total_revenue": {
+                    "type": "number"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -666,10 +1090,115 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Stand": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kermesse": {
+                    "description": "Associations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Kermesse"
+                        }
+                    ]
+                },
+                "kermesseID": {
+                    "description": "Référence vers la Kermesse",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "ownerID": {
+                    "description": "Référence vers le User qui tient le stand",
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "models.StandInteractionResponse": {
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.StandStats": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "items_sold": {
+                    "type": "integer"
+                },
+                "revenue": {
+                    "type": "number"
+                },
+                "stand_id": {
+                    "type": "integer"
+                },
+                "total_tokens_used": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "passwordHash": {
+                    "type": "string"
+                },
+                "resetToken": {
+                    "description": "Token de réinitialisation",
+                    "type": "string"
+                },
+                "resetTokenExpiry": {
+                    "description": "Expiration du token de réinitialisation",
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

@@ -62,4 +62,5 @@ func main() {
 
 	// Démarrer le serveur sur le port 8080
 	log.Fatal(router.Run(":8080"))
+	log.Fatal(router.Run("0.0.0.0:8080"))
 }

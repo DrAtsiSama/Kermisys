@@ -6,9 +6,9 @@ import (
 )
 
 func initializeChatRoutes(r *gin.RouterGroup) {
-	chatRoutes := r.Group("/chat")
+	chatRoutes := r.Group("/ws")
 	{
 		// WebSocket chat route
-		chatRoutes.GET("/connect", controllers.ChatHandler)
+		chatRoutes.GET("/private", controllers.ChatHandler)
 	}
 }

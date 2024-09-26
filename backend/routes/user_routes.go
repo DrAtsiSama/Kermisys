@@ -10,6 +10,6 @@ func initializeUserRoutes(r *gin.RouterGroup) {
 	{
 		// General user routes
 		userRoutes.GET("/:username", controllers.GetUserHandler)
-		userRoutes.POST("/create", controllers.CreateUserHandler)
+		userRoutes.POST("/", controllers.CreateUserHandler)
 	}
 }

@@ -1,6 +1,9 @@
 package services
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/dratsisama/Kermisys/backend/database"
 	"github.com/dratsisama/Kermisys/backend/models"
 	"golang.org/x/crypto/bcrypt"
@@ -20,12 +23,27 @@ var users = map[string]User{
 }
 
 // CreateUser ajoute un nouvel utilisateur dans la base de données
-func CreateUser(username, role string) error {
+func CreateUser(username, email, role string) error {
 	user := models.User{
 		Username: username,
+		Email:    email,
 		Role:     role,
 	}
+	// Vérifie si l'e-mail existe déjà
+	var existingUser models.User
+	if err := database.DB.Where("email = ?", email).First(&existingUser).Error; err == nil {
+		fmt.Println("Erreur : Cet email existe déjà dans la base de données")
+		return errors.New("email already exists")
+	}
+
+	// Vérifie si l'username existe déjà
+	if err := database.DB.Where("username = ?", username).First(&existingUser).Error; err == nil {
+		fmt.Println("Erreur : Le nom d'utilisateur existe déjà dans la base de données")
+		return errors.New("Username already exists")
+	}
+	// Tentative d'ajout de l'utilisateur à la base de données
 	if err := database.DB.Create(&user).Error; err != nil {
+		fmt.Println("Erreur lors de la création de l'utilisateur :", err)
 		return err
 	}
 	return nil

@@ -48,6 +48,9 @@ func Migrate() {
 		&models.TombolaTicket{},
 		&models.TombolaLot{},
 		&models.TombolaDraw{},
+		&models.KermesseStats{},
+		&models.StandStats{},
+		&models.OrganisateurStats{},
 	)
 
 	if err != nil {

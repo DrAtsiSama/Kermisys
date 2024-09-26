@@ -11,5 +11,6 @@ func initializeParentRoutes(r *gin.RouterGroup) {
 		// Parents can buy and distribute tokens
 		parentRoutes.POST("/buy-tokens", controllers.BuyTokens)
 		parentRoutes.POST("/distribute-tokens", controllers.DistributeTokens)
+		// parentRoutes.GET("/view-children", controllers.ViewChildren)
 	}
 }
