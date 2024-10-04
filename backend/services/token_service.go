@@ -2,15 +2,29 @@ package services
 
 import (
 	"errors"
+
+	"github.com/dratsisama/Kermisys/backend/database"
+	"github.com/dratsisama/Kermisys/backend/models"
 )
 
 var userTokens = make(map[string]int)
 
-func BuyTokens(username string, amount int) error {
-	if amount <= 0 {
-		return errors.New("invalid token amount")
+func AchatJetons(userID uint, amount int) error {
+	var user models.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		return errors.New("Utilisateur non trouvé")
 	}
-	userTokens[username] += amount
+
+	jeton := models.Token{
+		Amount: amount,
+		UserID: userID,
+	}
+
+	// Enregistrer les jetons
+	if err := database.DB.Create(&jeton).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 

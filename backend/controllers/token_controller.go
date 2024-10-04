@@ -20,19 +20,24 @@ import (
 // @Failure      400  {object}  models.ErrorResponse
 // @Failure      500  {object}  models.ErrorResponse
 // @Router       /tokens/buy [post]
-func BuyTokens(c *gin.Context) {
-	username := c.GetString("username")
-	amount, err := strconv.Atoi(c.PostForm("amount"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid token amount"})
+func AchatJetons(c *gin.Context) {
+	var achatRequest struct {
+		Amount int `json:"amount"`
+	}
+	userID, _ := strconv.Atoi(c.Param("user_id"))
+
+	if err := c.ShouldBindJSON(&achatRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 		return
 	}
-	err = services.BuyTokens(username, amount)
+
+	err := services.AchatJetons(uint(userID), achatRequest.Amount)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, models.BuyTokensResponse{Message: "Tokens bought successfully"})
+
+	c.JSON(http.StatusOK, gin.H{"message": "Jetons achetés avec succès"})
 }
 
 // @Summary      Distribution de jetons

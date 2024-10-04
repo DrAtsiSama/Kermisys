@@ -5,9 +5,17 @@ definitions:
       message:
         type: string
     type: object
-  models.BuyTombolaTicketResponse:
+  models.ChatMessage:
     properties:
-      message:
+      content:
+        type: string
+      id:
+        type: integer
+      receiver_id:
+        type: string
+      sender_id:
+        type: string
+      timestamp:
         type: string
     type: object
   models.CreateUserResponse:
@@ -20,11 +28,6 @@ definitions:
       message:
         type: string
     type: object
-  models.DrawTombolaResponse:
-    properties:
-      winner:
-        type: string
-    type: object
   models.ErrorResponse:
     properties:
       error:
@@ -32,9 +35,11 @@ definitions:
     type: object
   models.Kermesse:
     properties:
-      createdAt:
+      created_at:
         type: string
-      endDate:
+      description:
+        type: string
+      end_date:
         type: string
       id:
         type: integer
@@ -42,9 +47,24 @@ definitions:
         type: string
       name:
         type: string
-      startDate:
+      organisateurs:
+        description: Relation many-to-many avec les organisateurs
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      participants:
+        description: Relation many-to-many avec les participants
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      stands:
+        description: Association one-to-many avec les stands
+        items:
+          $ref: '#/definitions/models.Stand'
+        type: array
+      start_date:
         type: string
-      updatedAt:
+      updated_at:
         type: string
     type: object
   models.KermesseStats:
@@ -89,6 +109,28 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.ParentChildRequest:
+    properties:
+      child:
+        $ref: '#/definitions/models.User'
+      child_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      parent:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: Associations
+      parent_id:
+        type: integer
+      status:
+        description: pending, accepted, rejected
+        type: string
+      updated_at:
+        type: string
+    type: object
   models.PaymentRequest:
     properties:
       amount:
@@ -104,17 +146,16 @@ definitions:
         description: 'Source de paiement (ex: un token de carte)'
         type: string
     type: object
-  models.PaymentResponse:
-    properties:
-      chargeID:
-        description: L'identifiant du paiement
-        type: string
-    type: object
   models.Stand:
     properties:
-      createdAt:
+      created_at:
+        description: Date de création du stand
         type: string
       description:
+        description: Augmenté la taille pour plus de flexibilité
+        type: string
+      end_date:
+        description: Date de fin du stand
         type: string
       id:
         type: integer
@@ -122,26 +163,29 @@ definitions:
         allOf:
         - $ref: '#/definitions/models.Kermesse'
         description: Associations
-      kermesseID:
+      kermesse_id:
         description: Référence vers la Kermesse
         type: integer
+      location:
+        description: Lieu où se trouve le stand
+        type: string
       name:
         type: string
       owner:
         $ref: '#/definitions/models.User'
-      ownerID:
+      owner_id:
         description: Référence vers le User qui tient le stand
         type: integer
+      start_date:
+        description: Date de début du stand
+        type: string
       stock:
         type: integer
       type:
+        description: e.g., "food", "game"
         type: string
-      updatedAt:
-        type: string
-    type: object
-  models.StandInteractionResponse:
-    properties:
-      message:
+      updated_at:
+        description: Date de la dernière mise à jour du stand
         type: string
     type: object
   models.StandStats:
@@ -160,6 +204,36 @@ definitions:
         type: integer
       updated_at:
         type: string
+    type: object
+  models.Transaction:
+    properties:
+      amount:
+        description: Nombre de jetons utilisés
+        type: integer
+      currency:
+        type: string
+      id:
+        type: integer
+      kermesseID:
+        type: integer
+      paymentIntent:
+        type: string
+      stand:
+        allOf:
+        - $ref: '#/definitions/models.Stand'
+        description: Associations
+      standID:
+        description: Référence vers le stand
+        type: integer
+      status:
+        type: string
+      timestamp:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      userID:
+        description: Référence vers l'utilisateur
+        type: integer
     type: object
   models.User:
     properties:
@@ -234,22 +308,29 @@ paths:
       summary: Mot de passe oublié
       tags:
       - Authentification
-  /interact-stand:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Permet à un utilisateur d'interagir avec un stand spécifique (nourriture,
-        boisson, activité, etc.)
+  /kermesses:
+    get:
+      description: Récupère la liste de toutes les kermesses avec pagination et filtres
       parameters:
-      - description: Nom d'utilisateur
-        in: header
-        name: username
-        required: true
+      - description: Numéro de la page
+        in: query
+        name: page
+        type: integer
+      - description: Nombre d'éléments par page
+        in: query
+        name: limit
+        type: integer
+      - description: Filtrer par nom de la kermesse
+        in: query
+        name: name
         type: string
-      - description: 'Type de stand (ex: ''food'', ''drink'', ''activity'')'
-        in: formData
-        name: stand
-        required: true
+      - description: Filtrer par localisation de la kermesse
+        in: query
+        name: location
+        type: string
+      - description: 'Filtrer par date de début (format: YYYY-MM-DD)'
+        in: query
+        name: startDate
         type: string
       produces:
       - application/json
@@ -257,14 +338,202 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.StandInteractionResponse'
+            items:
+              $ref: '#/definitions/models.Kermesse'
+            type: array
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Interaction avec un stand
+      security:
+      - Bearer: []
+      summary: Récupérer toutes les kermesses
       tags:
-      - Stands
+      - Kermesses
+    post:
+      consumes:
+      - application/json
+      description: Crée une nouvelle kermesse avec les détails fournis
+      parameters:
+      - description: Détails de la kermesse
+        in: body
+        name: kermesse
+        required: true
+        schema:
+          $ref: '#/definitions/models.Kermesse'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Kermesse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Créer une nouvelle kermesse
+      tags:
+      - Kermesses
+  /kermesses/{id}:
+    delete:
+      description: Supprime une kermesse par son ID
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Supprimer une kermesse
+      tags:
+      - Kermesses
+    get:
+      description: Récupère les détails d'une kermesse par son ID
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Kermesse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Récupérer une kermesse par ID
+      tags:
+      - Kermesses
+    put:
+      consumes:
+      - application/json
+      description: Met à jour les détails d'une kermesse existante
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Détails mis à jour de la kermesse
+        in: body
+        name: kermesse
+        required: true
+        schema:
+          $ref: '#/definitions/models.Kermesse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Kermesse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Mettre à jour une kermesse
+      tags:
+      - Kermesses
+  /kermesses/{id}/participants/{user_id}:
+    post:
+      description: Ajoute un utilisateur en tant que participant à une kermesse
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Ajouter un participant à une kermesse
+      tags:
+      - Kermesses
+  /kermesses/{id}/stands/{stand_id}:
+    post:
+      description: Ajoute un stand à une kermesse
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Ajouter un stand à une kermesse
+      tags:
+      - Kermesses
   /login:
     post:
       consumes:
@@ -305,10 +574,12 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.MessageResponse'
+      security:
+      - Bearer: []
       summary: Déconnexion
       tags:
       - Authentification
-  /payment:
+  /payments:
     post:
       consumes:
       - application/json
@@ -323,21 +594,42 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/models.PaymentResponse'
+            $ref: '#/definitions/models.Transaction'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Processus de paiement
       tags:
-      - Paiement
+      - Paiements
+  /payments/user/{userID}:
+    get:
+      description: Récupère toutes les transactions liées à un utilisateur
+      parameters:
+      - description: ID de l'utilisateur
+        in: path
+        name: userID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Transaction'
+            type: array
+      security:
+      - Bearer: []
+      summary: Récupérer les transactions d'un utilisateur
+      tags:
+      - Paiements
   /register:
     post:
       consumes:
@@ -410,7 +702,18 @@ paths:
       - Authentification
   /stands:
     get:
-      description: Récupère la liste de tous les stands
+      description: Récupère la liste de tous les stands avec pagination
+      parameters:
+      - default: 1
+        description: Numéro de la page
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Nombre d'éléments par page
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -420,7 +723,13 @@ paths:
             items:
               $ref: '#/definitions/models.Stand'
             type: array
-      summary: Récupérer tous les stands
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Récupérer tous les stands avec pagination
       tags:
       - Stands
     post:
@@ -428,7 +737,7 @@ paths:
       - application/json
       description: Ajoute un nouveau stand
       parameters:
-      - description: Détails du stand
+      - description: Détails du stand (Nom, Description, etc.)
         in: body
         name: stand
         required: true
@@ -445,6 +754,12 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Créer un stand
       tags:
       - Stands
@@ -466,11 +781,13 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Supprimer un stand
       tags:
       - Stands
     get:
-      description: Récupère un stand par son ID
+      description: Récupère les détails d'un stand par son ID
       parameters:
       - description: ID du stand
         in: path
@@ -484,17 +801,23 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/models.Stand'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Récupérer un stand
+      security:
+      - Bearer: []
+      summary: Récupérer un stand par ID
       tags:
       - Stands
     put:
       consumes:
       - application/json
-      description: Met à jour les détails d'un stand
+      description: Met à jour les détails d'un stand existant
       parameters:
       - description: ID du stand
         in: path
@@ -518,23 +841,47 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Mettre à jour un stand
       tags:
       - Stands
-  /stats:
-    get:
-      description: Renvoie les statistiques actuelles du système
-      produces:
-      - application/json
+  /stands/{id}/interact:
+    post:
+      description: Permet à un utilisateur d'interagir avec un stand spécifique
+      parameters:
+      - description: ID du stand
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Action effectuée (ex: ''buy_item'', ''play_game'')'
+        in: query
+        name: action
+        required: true
+        type: string
+      - description: Quantité à affecter (par défaut 1)
+        in: query
+        name: quantity
+        type: integer
       responses:
         "200":
-          description: Statistiques actuelles
+          description: Interaction réussie
           schema:
-            additionalProperties: true
-            type: object
-      summary: Récupérer les statistiques
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Interagir avec un stand
       tags:
-      - Statistiques
+      - Stands
   /stats/kermesse/{id}:
     get:
       description: Récupère les statistiques de la kermesse par ID
@@ -555,6 +902,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Obtenir les statistiques de la kermesse
       tags:
       - Statistiques
@@ -578,6 +927,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Obtenir les statistiques de l'organisateur
       tags:
       - Statistiques
@@ -601,6 +952,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Obtenir les statistiques d'un stand
       tags:
       - Statistiques
@@ -677,46 +1030,6 @@ paths:
       summary: Distribution de jetons
       tags:
       - Jetons
-  /tombola/buy:
-    post:
-      description: Permet à un utilisateur d'acheter un billet de tombola
-      parameters:
-      - description: Nom d'utilisateur
-        in: header
-        name: username
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.BuyTombolaTicketResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Acheter un billet de tombola
-      tags:
-      - Tombola
-  /tombola/draw:
-    post:
-      description: Effectue le tirage de la tombola et retourne le gagnant
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.DrawTombolaResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Tirage de la tombola
-      tags:
-      - Tombola
   /user:
     post:
       consumes:
@@ -739,6 +1052,11 @@ paths:
         name: role
         required: true
         type: string
+      - description: Mot de passe de l'utilisateur
+        in: formData
+        name: password
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -750,6 +1068,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: Créer un nouvel utilisateur
       tags:
       - Utilisateurs
@@ -779,6 +1099,207 @@ paths:
       summary: Récupérer les détails d'un utilisateur
       tags:
       - Utilisateurs
+  /user/children:
+    get:
+      description: Renvoie la liste de tous les enfants associés à un parent spécifique
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Liste des enfants associés à un parent
+      tags:
+      - Parent-Enfant
+  /user/children/{child_id}:
+    delete:
+      description: Permet de désassocier un enfant d'un parent et de lui réassigner
+        le rôle par défaut "parent"
+      parameters:
+      - description: ID de l'enfant
+        in: path
+        name: child_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Supprimer un enfant associé à un parent
+      tags:
+      - Parent-Enfant
+  /user/parent-requests:
+    post:
+      consumes:
+      - application/json
+      description: Permet de créer une nouvelle demande pour lier un parent et un
+        enfant en utilisant leurs noms d'utilisateur
+      parameters:
+      - description: Nom d'utilisateur du parent
+        in: formData
+        name: parent_username
+        required: true
+        type: string
+      - description: Nom d'utilisateur de l'enfant
+        in: formData
+        name: child_username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.ParentChildRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Ajouter une demande parent-enfant
+      tags:
+      - Parent-Enfant
+  /user/parent-requests/accept/{id}:
+    put:
+      description: Permet d'accepter une demande existante pour lier un parent et
+        un enfant
+      parameters:
+      - description: ID de la demande
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParentChildRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Accepter une demande parent-enfant
+      tags:
+      - Parent-Enfant
+  /user/parent-requests/reject/{id}:
+    put:
+      description: Permet de refuser une demande existante pour lier un parent et
+        un enfant
+      parameters:
+      - description: ID de la demande
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ParentChildRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Refuser une demande parent-enfant
+      tags:
+      - Parent-Enfant
+  /user/parent-requests/requests:
+    get:
+      description: Renvoie la liste de toutes les demandes en attente de traitement
+        pour l'utilisateur connecté
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ParentChildRequest'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Liste des demandes parent-enfant pour l'utilisateur connecté
+      tags:
+      - Parent-Enfant
+  /ws/history:
+    get:
+      description: Récupère l'historique des messages entre deux utilisateurs, avec
+        pagination
+      parameters:
+      - description: ID de l'expéditeur
+        in: query
+        name: sender_id
+        required: true
+        type: string
+      - description: ID du destinataire
+        in: query
+        name: receiver_id
+        required: true
+        type: string
+      - default: 50
+        description: Nombre de messages à récupérer
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Numéro de page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ChatMessage'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Récupérer l'historique des messages
+      tags:
+      - Chat
   /ws/private:
     get:
       description: Établit une connexion WebSocket pour la discussion privée en temps
@@ -806,6 +1327,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
       summary: WebSocket Chat Privé
       tags:
       - WebSocket

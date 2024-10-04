@@ -6,7 +6,6 @@ import (
 
 	"github.com/dratsisama/Kermisys/backend/database"
 	"github.com/dratsisama/Kermisys/backend/models"
-	"github.com/dratsisama/Kermisys/backend/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +17,7 @@ import (
 // @Success      200  {object}  models.KermesseStats
 // @Failure      404  {object}  models.ErrorResponse
 // @Router       /stats/kermesse/{id} [get]
+// @Security Bearer
 func GetKermesseStats(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
@@ -38,6 +38,7 @@ func GetKermesseStats(c *gin.Context) {
 // @Success      200  {object}  models.StandStats
 // @Failure      404  {object}  models.ErrorResponse
 // @Router       /stats/stand/{id} [get]
+// @Security Bearer
 func GetStandStats(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
@@ -58,6 +59,7 @@ func GetStandStats(c *gin.Context) {
 // @Success      200  {object}  models.OrganisateurStats
 // @Failure      404  {object}  models.ErrorResponse
 // @Router       /stats/organisateur/{id} [get]
+// @Security Bearer
 func GetOrganisateurStats(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
@@ -67,16 +69,5 @@ func GetOrganisateurStats(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, stats)
-}
-
-// @Summary      Récupérer les statistiques
-// @Description  Renvoie les statistiques actuelles du système
-// @Tags         Statistiques
-// @Produce      json
-// @Success      200  {object}  map[string]interface{} "Statistiques actuelles"
-// @Router       /stats [get]
-func GetStatisticsHandler(c *gin.Context) {
-	stats := services.GetStatistics()
 	c.JSON(http.StatusOK, stats)
 }

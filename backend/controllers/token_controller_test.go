@@ -12,7 +12,7 @@ import (
 
 func TestBuyTokens(t *testing.T) {
 	router := gin.Default()
-	router.POST("/buy-tokens", BuyTokens)
+	router.POST("/buy-tokens", AchatJetons)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("POST", "/buy-tokens", strings.NewReader("amount=100"))

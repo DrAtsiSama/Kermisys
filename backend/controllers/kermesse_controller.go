@@ -1,0 +1,230 @@
+package controllers
+
+import (
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/dratsisama/Kermisys/backend/database"
+	"github.com/dratsisama/Kermisys/backend/models"
+	"github.com/dratsisama/Kermisys/backend/services"
+	"github.com/gin-gonic/gin"
+)
+
+// @Summary      Créer une nouvelle kermesse
+// @Description  Crée une nouvelle kermesse avec les détails fournis
+// @Tags         Kermesses
+// @Accept       json
+// @Produce      json
+// @Param        kermesse  body  models.Kermesse  true  "Détails de la kermesse"
+// @Success      201  {object}  models.Kermesse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /kermesses [post]
+// @Security Bearer
+func CreateKermesse(c *gin.Context) {
+	var kermesse models.Kermesse
+	if err := c.ShouldBindJSON(&kermesse); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid data"})
+		return
+	}
+
+	// Récupérer l'ID utilisateur depuis le JWT (middleware JWT doit être configuré pour ajouter l'ID utilisateur)
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Impossible de récupérer l'ID utilisateur depuis le token"})
+		return
+	}
+
+	// Vérifier si l'utilisateur existe
+	var user models.User
+	log.Println(user, userID)
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Utilisateur non trouvé"})
+		return
+	}
+
+	// Définir les timestamps pour la nouvelle kermesse
+	kermesse.CreatedAt = time.Now()
+	kermesse.UpdatedAt = time.Now()
+
+	// Ajouter l'utilisateur en tant qu'organisateur de la kermesse
+	kermesse.Organisateurs = append(kermesse.Organisateurs, user)
+
+	// Créer la kermesse dans la base de données
+	if err := services.CreateKermesse(kermesse, user.ID); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to create kermesse"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, kermesse)
+}
+
+// @Summary      Récupérer toutes les kermesses
+// @Description  Récupère la liste de toutes les kermesses avec pagination et filtres
+// @Tags         Kermesses
+// @Produce      json
+// @Param        page     query     int     false  "Numéro de la page"
+// @Param        limit    query     int     false  "Nombre d'éléments par page"
+// @Param        name     query     string  false  "Filtrer par nom de la kermesse"
+// @Param        location query     string  false  "Filtrer par localisation de la kermesse"
+// @Param        startDate query    string  false  "Filtrer par date de début (format: YYYY-MM-DD)"
+// @Success      200      {array}   models.Kermesse
+// @Failure      500      {object}  models.ErrorResponse
+// @Router       /kermesses [get]
+// @Security Bearer
+func GetAllKermesses(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	name := c.Query("name")
+	location := c.Query("location")
+	startDate := c.Query("startDate")
+
+	var kermesses []models.Kermesse
+	query := database.DB.Offset(offset).Limit(limit)
+
+	if name != "" {
+		query = query.Where("name ILIKE ?", "%"+name+"%")
+	}
+	if location != "" {
+		query = query.Where("location ILIKE ?", "%"+location+"%")
+	}
+	if startDate != "" {
+		parsedDate, err := time.Parse("2006-01-02", startDate)
+		if err == nil {
+			query = query.Where("start_date = ?", parsedDate)
+		}
+	}
+
+	if err := query.Find(&kermesses).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to fetch kermesses"})
+		return
+	}
+
+	c.JSON(http.StatusOK, kermesses)
+}
+
+// @Summary      Récupérer une kermesse par ID
+// @Description  Récupère les détails d'une kermesse par son ID
+// @Tags         Kermesses
+// @Produce      json
+// @Param        id  path  int  true  "ID de la kermesse"
+// @Success      200  {object}  models.Kermesse
+// @Failure      404  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /kermesses/{id} [get]
+// @Security Bearer
+func GetKermesseByID(c *gin.Context) {
+	id := c.Param("id")
+	var kermesse models.Kermesse
+	if err := database.DB.First(&kermesse, id).Error; err != nil {
+		if err.Error() == "record not found" {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Kermesse not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Error fetching kermesse"})
+		}
+		return
+	}
+	c.JSON(http.StatusOK, kermesse)
+}
+
+// @Summary      Mettre à jour une kermesse
+// @Description  Met à jour les détails d'une kermesse existante
+// @Tags         Kermesses
+// @Accept       json
+// @Produce      json
+// @Param        id        path  int  true  "ID de la kermesse"
+// @Param        kermesse  body  models.Kermesse  true  "Détails mis à jour de la kermesse"
+// @Success      200  {object}  models.Kermesse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      404  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /kermesses/{id} [put]
+// @Security Bearer
+func UpdateKermesse(c *gin.Context) {
+	id := c.Param("id")
+	var kermesse models.Kermesse
+	if err := database.DB.First(&kermesse, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Kermesse not found"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&kermesse); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid data"})
+		return
+	}
+	kermesse.UpdatedAt = time.Now()
+
+	if err := database.DB.Save(&kermesse).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to update kermesse"})
+		return
+	}
+	c.JSON(http.StatusOK, kermesse)
+}
+
+// @Summary      Supprimer une kermesse
+// @Description  Supprime une kermesse par son ID
+// @Tags         Kermesses
+// @Param        id  path  int  true  "ID de la kermesse"
+// @Success      204
+// @Failure      404  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /kermesses/{id} [delete]
+// @Security Bearer
+func DeleteKermesse(c *gin.Context) {
+	id := c.Param("id")
+	if err := database.DB.Delete(&models.Kermesse{}, id).Error; err != nil {
+		if err.Error() == "record not found" {
+			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Kermesse not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to delete kermesse"})
+		}
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+// @Summary      Ajouter un participant à une kermesse
+// @Description  Ajoute un utilisateur en tant que participant à une kermesse
+// @Tags         Kermesses
+// @Produce      json
+// @Param        id      path  int  true  "ID de la kermesse"
+// @Param        user_id path  int  true  "ID de l'utilisateur"
+// @Success      200  {object}  models.MessageResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /kermesses/{id}/participants/{user_id} [post]
+// @Security Bearer
+func AddParticipantToKermesse(c *gin.Context) {
+	kermesseID, _ := strconv.Atoi(c.Param("id"))
+	userID, _ := strconv.Atoi(c.Param("user_id"))
+	err := services.AddParticipant(uint(kermesseID), uint(userID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Participant ajouté avec succès"})
+}
+
+// @Summary      Ajouter un stand à une kermesse
+// @Description  Ajoute un stand à une kermesse
+// @Tags         Kermesses
+// @Produce      json
+// @Param        id       path  int  true  "ID de la kermesse"
+// @Param        stand_id path  int  true  "ID du stand"
+// @Success      200  {object}  models.MessageResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /kermesses/{id}/stands/{stand_id} [post]
+// @Security Bearer
+func AddStandToKermesse(c *gin.Context) {
+	kermesseID, _ := strconv.Atoi(c.Param("id"))
+	standID, _ := strconv.Atoi(c.Param("stand_id"))
+	err := services.AddStand(uint(kermesseID), uint(standID))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Stand ajouté avec succès"})
+}

@@ -11,6 +11,12 @@ import (
 func InitRoutes() *gin.Engine {
 	r := gin.Default()
 
+	// Ajout de la gestion d'erreurs globales
+	r.Use(middlewares.ErrorHandlingMiddleware())
+
+	// Ajout de la sécurité des en-têtes
+	r.Use(middlewares.SecurityHeadersMiddleware())
+
 	// Configurer CORS
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"}, // Change "*" par tes domaines si tu veux plus de sécurité
@@ -24,21 +30,23 @@ func InitRoutes() *gin.Engine {
 	r.POST("/login", controllers.Login)
 	r.POST("/register", controllers.Register)
 	r.POST("/reset-password", controllers.ResetPassword)
-	r.POST("/logout", controllers.Logout)
 	r.POST("/forgot-password", controllers.ForgotPassword)
 
 	// Protected routes using JWT middleware
 	protected := r.Group("/")
 	protected.Use(middlewares.AuthMiddleware())
 	{
-		protected.GET("/:username", controllers.GetUserHandler)
+		protected.POST("/logout", controllers.Logout)
 		initializeChatRoutes(protected)
 		initializeAdminRoutes(protected)
 		initializeStandRoutes(protected)
+		initializeKermesseRoutes(protected)
 		initializeParentRoutes(protected)
 		initializeUserRoutes(protected)
 		initializePaymentRoutes(protected)
 		initializeStatisticsRoutes(protected)
+		initializeScoresRoutes(protected)
+		initializeTombolaRoutes(protected)
 	}
 
 	return r

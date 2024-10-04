@@ -11,7 +11,6 @@ func initializeStatisticsRoutes(r *gin.RouterGroup) {
 	statisticsRoutes.Use(middlewares.AuthMiddleware())
 	{
 		// Route to view statistics
-		statisticsRoutes.GET("/", middlewares.RoleMiddleware("admin", "organisateur"), controllers.GetStatisticsHandler)
 		statisticsRoutes.GET("/kermesse/:id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.GetKermesseStats)
 		statisticsRoutes.GET("/stand/:id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.GetStandStats)
 		statisticsRoutes.GET("/organisateur/:id", middlewares.RoleMiddleware("admin"), controllers.GetOrganisateurStats)

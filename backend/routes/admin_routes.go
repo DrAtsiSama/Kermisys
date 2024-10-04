@@ -13,7 +13,6 @@ func initializeAdminRoutes(r *gin.RouterGroup) {
 		adminRoutes.Use(middlewares.RoleMiddleware("admin"))
 
 		// Assuming admins can view all statistics and manage users
-		adminRoutes.GET("/statistics", controllers.GetStatisticsHandler)
 		adminRoutes.POST("/create-user", controllers.CreateUserHandler)
 	}
 }

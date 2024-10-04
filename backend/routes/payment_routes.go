@@ -6,9 +6,11 @@ import (
 )
 
 func initializePaymentRoutes(r *gin.RouterGroup) {
-	paymentRoutes := r.Group("/payment")
+	paymentRoutes := r.Group("/payments")
 	{
 		// Payment processing route
-		paymentRoutes.POST("/", controllers.ProcessPayment)
+		paymentRoutes.POST("", controllers.ProcessPayment)
+		// paymentRoutes.POST("", controllers.CreatePayment)
+		paymentRoutes.GET("/user/:userID", controllers.GetTransactionsByUserID)
 	}
 }

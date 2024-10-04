@@ -34,7 +34,8 @@ import (
 func main() {
 	// Charger les configurations
 	config.LoadConfig()
-
+	// Charger la config de Stripe
+	config.InitStripe()
 	// Initialiser la base de données
 	database.Connect()
 

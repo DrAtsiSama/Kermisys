@@ -86,6 +86,7 @@ func Register(c *gin.Context) {
 // @Produce      json
 // @Success      200  {object}  models.MessageResponse
 // @Router       /logout [post]
+// @Security Bearer
 func Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, models.MessageResponse{Message: "User logged out successfully"})
 }

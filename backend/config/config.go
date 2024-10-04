@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/stripe/stripe-go"
 )
 
 type Config struct {
@@ -27,13 +28,21 @@ func LoadConfig() {
 	}
 
 	AppConfig = Config{
-		DBHost:     getEnv("DB_HOST", "localhost"),
-		DBUser:     getEnv("DB_USER", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "password"),
-		DBName:     getEnv("DB_NAME", "kermisys_db"),
-		DBPort:     getEnv("DB_PORT", "5432"),
-		JWTSecret:  getEnv("JWT_SECRET", "default_secret"), // Clé secrète pour JWT
+		DBHost:     getEnv("DB_HOST", os.Getenv("DB_HOST")),
+		DBUser:     getEnv("DB_USER", os.Getenv("DB_USER")),
+		DBPassword: getEnv("DB_PASSWORD", os.Getenv("DB_PASSWORD")),
+		DBName:     getEnv("DB_NAME", os.Getenv("DB_NAME")),
+		DBPort:     getEnv("DB_PORT", os.Getenv("DB_PORT")),
+		JWTSecret:  getEnv("JWT_SECRET", os.Getenv("JWT_SECRET")),
 	}
+}
+
+func InitStripe() {
+	stripeKey := os.Getenv("STRIPE_SECRET_KEY")
+	if stripeKey == "" {
+		log.Fatal("STRIPE_SECRET_KEY not set in environment")
+	}
+	stripe.Key = stripeKey
 }
 
 // Fonction auxiliaire pour obtenir les variables d'environnement avec une valeur par défaut

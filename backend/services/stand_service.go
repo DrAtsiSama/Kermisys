@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/dratsisama/Kermisys/backend/database"
 	"github.com/dratsisama/Kermisys/backend/models"
@@ -15,7 +16,7 @@ func CreateStand(stand *models.Stand) error {
 // GetStand récupère un stand par son ID
 func GetStand(id uint) (models.Stand, error) {
 	var stand models.Stand
-	if err := database.DB.First(&stand, id).Error; err != nil {
+	if err := database.DB.Preload("Kermesse").Preload("Owner").First(&stand, id).Error; err != nil {
 		return stand, err
 	}
 	return stand, nil
@@ -28,27 +29,84 @@ func UpdateStand(stand *models.Stand) error {
 
 // DeleteStand supprime un stand par son ID
 func DeleteStand(id uint) error {
-	if err := database.DB.Delete(&models.Stand{}, id).Error; err != nil {
+	var stand models.Stand
+
+	// Vérifier si le stand existe
+	if err := database.DB.Unscoped().First(&stand, id).Error; err != nil {
+		return errors.New("Stand not found")
+	}
+
+	// Supprimer le stand
+	if err := database.DB.Unscoped().Delete(&stand).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
 
-// GetAllStands récupère tous les stands
-func GetAllStands() ([]models.Stand, error) {
+// GetAllStands récupère tous les stands avec pagination
+func GetAllStands(page, limit int) ([]models.Stand, error) {
 	var stands []models.Stand
-	if err := database.DB.Find(&stands).Error; err != nil {
+	offset := (page - 1) * limit
+	if err := database.DB.Preload("Kermesse").Preload("Owner").Offset(offset).Limit(limit).Find(&stands).Error; err != nil {
 		return nil, err
 	}
 	return stands, nil
 }
 
-var standStock = make(map[string]int)
-
-func InteractWithStand(username string, stand string, tokens int) error {
-	if standStock[stand] <= 0 {
-		return errors.New("insufficient stock")
+// InteractWithStand permet à un utilisateur de jouer ou d'acheter un objet à un stand
+func InteractWithStand(userID, standID uint, action, item string, quantity, score int) error {
+	var stand models.Stand
+	if err := database.DB.First(&stand, standID).Error; err != nil {
+		return errors.New("Stand not found")
 	}
-	standStock[stand] -= 1
+
+	// Validation de l'action
+	if action != "play_game" && action != "buy_item" && action != "add_stock" && action != "remove_stock" {
+		return errors.New("Invalid action")
+	}
+
+	// Enregistrer l'interaction
+	interaction := models.StandInteraction{
+		UserID:    userID,
+		StandID:   standID,
+		Action:    action,
+		Item:      item,
+		Quantity:  quantity,
+		Score:     score,
+		CreatedAt: time.Now(),
+	}
+
+	// Gestion des actions
+	switch action {
+	case "play_game":
+		if score > stand.Stock {
+			return errors.New("Not enough stock for this game")
+		}
+		stand.Stock -= score
+	case "buy_item":
+		if stand.Stock < quantity {
+			return errors.New("Not enough stock")
+		}
+		stand.Stock -= quantity
+	case "add_stock":
+		stand.Stock += quantity
+	case "remove_stock":
+		if stand.Stock < quantity {
+			return errors.New("Not enough stock")
+		}
+		stand.Stock -= quantity
+	}
+
+	// Enregistrer les modifications du stand
+	if err := database.DB.Save(&stand).Error; err != nil {
+		return err
+	}
+
+	// Sauvegarder l'interaction dans la base de données
+	if err := database.DB.Create(&interaction).Error; err != nil {
+		return err
+	}
+
 	return nil
 }

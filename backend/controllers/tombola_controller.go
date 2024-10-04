@@ -2,34 +2,69 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
-	"github.com/dratsisama/Kermisys/backend/models" // Import des modèles
+	"github.com/dratsisama/Kermisys/backend/models"
 	"github.com/dratsisama/Kermisys/backend/services"
+
 	"github.com/gin-gonic/gin"
 )
 
-// @Summary      Acheter un billet de tombola
-// @Description  Permet à un utilisateur d'acheter un billet de tombola
-// @Tags         Tombola
-// @Produce      json
-// @Param        username  header  string  true  "Nom d'utilisateur"
-// @Success      200  {object}  models.BuyTombolaTicketResponse
-// @Failure      500  {object}  models.ErrorResponse
-// @Router       /tombola/buy [post]
-func BuyTombolaTicket(c *gin.Context) {
-	username := c.GetString("username")
-	services.BuyTombolaTicket(username, 1)
-	c.JSON(http.StatusOK, models.BuyTombolaTicketResponse{Message: "Ticket bought"})
+func CreateTombola(c *gin.Context) {
+	var newTombola models.Tombola
+	if err := c.ShouldBindJSON(&newTombola); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
+		return
+	}
+
+	err := services.CreateTombola(newTombola)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Tombola créée avec succès"})
 }
 
-// @Summary      Tirage de la tombola
-// @Description  Effectue le tirage de la tombola et retourne le gagnant
-// @Tags         Tombola
-// @Produce      json
-// @Success      200  {object}  models.DrawTombolaResponse
-// @Failure      500  {object}  models.ErrorResponse
-// @Router       /tombola/draw [post]
+func BuyTombolaTicket(c *gin.Context) {
+	tombolaID, _ := strconv.Atoi(c.Param("tombola_id"))
+	userID, _ := strconv.Atoi(c.Param("user_id"))
+
+	err := services.BuyTicket(uint(tombolaID), uint(userID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Ticket acheté avec succès"})
+}
+
 func DrawTombola(c *gin.Context) {
-	winner := services.DrawTombola()
-	c.JSON(http.StatusOK, models.DrawTombolaResponse{Winner: winner})
+	tombolaID, _ := strconv.Atoi(c.Param("tombola_id"))
+
+	winner, err := services.DrawTombola(uint(tombolaID))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"winner": winner})
+}
+
+// Ajouter un lot à une tombola
+func AddLotToTombola(c *gin.Context) {
+	tombolaID, _ := strconv.Atoi(c.Param("tombola_id"))
+	var newLot models.Lot
+	if err := c.ShouldBindJSON(&newLot); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
+		return
+	}
+
+	err := services.AddLot(uint(tombolaID), newLot)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Lot ajouté avec succès"})
 }

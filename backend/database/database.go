@@ -43,6 +43,7 @@ func Migrate() {
 		&models.ParentChild{},
 		&models.Kermesse{},
 		&models.Stand{},
+		&models.StandInteraction{},
 		&models.Token{},
 		&models.Transaction{},
 		&models.TombolaTicket{},
@@ -50,6 +51,9 @@ func Migrate() {
 		&models.TombolaDraw{},
 		&models.KermesseStats{},
 		&models.StandStats{},
+		&models.PlayerScore{},
+		&models.ParentChildRequest{},
+		&models.ChatMessage{},
 		&models.OrganisateurStats{},
 	)
 

@@ -4,6 +4,8 @@ import (
 	"log"
 	"sync"
 
+	"github.com/dratsisama/Kermisys/backend/database"
+	"github.com/dratsisama/Kermisys/backend/models"
 	"github.com/gorilla/websocket"
 )
 
@@ -51,4 +53,9 @@ func SendPrivateMessage(msg Message) {
 		log.Printf("Destinataire %s non trouvé ou non connecté", msg.ReceiverID)
 	}
 
+}
+
+// Enregistrer un message de chat dans la base de données
+func SaveChatMessage(message models.ChatMessage) error {
+	return database.DB.Create(&message).Error
 }

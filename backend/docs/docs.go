@@ -61,32 +61,142 @@ const docTemplate = `{
                 }
             }
         },
-        "/interact-stand": {
+        "/kermesses": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de toutes les kermesses avec pagination et filtres",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Récupérer toutes les kermesses",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Numéro de la page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Nombre d'éléments par page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtrer par nom de la kermesse",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtrer par localisation de la kermesse",
+                        "name": "location",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filtrer par date de début (format: YYYY-MM-DD)",
+                        "name": "startDate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Kermesse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
-                "description": "Permet à un utilisateur d'interagir avec un stand spécifique (nourriture, boisson, activité, etc.)",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Crée une nouvelle kermesse avec les détails fournis",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Stands"
+                    "Kermesses"
                 ],
-                "summary": "Interaction avec un stand",
+                "summary": "Créer une nouvelle kermesse",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Nom d'utilisateur",
-                        "name": "username",
-                        "in": "header",
-                        "required": true
+                        "description": "Détails de la kermesse",
+                        "name": "kermesse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Kermesse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Kermesse"
+                        }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kermesses/{id}": {
+            "get": {
+                "security": [
                     {
-                        "type": "string",
-                        "description": "Type de stand (ex: 'food', 'drink', 'activity')",
-                        "name": "stand",
-                        "in": "formData",
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère les détails d'une kermesse par son ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Récupérer une kermesse par ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -94,11 +204,211 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.StandInteractionResponse"
+                            "$ref": "#/definitions/models.Kermesse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Met à jour les détails d'une kermesse existante",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Mettre à jour une kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Détails mis à jour de la kermesse",
+                        "name": "kermesse",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Kermesse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Kermesse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Supprime une kermesse par son ID",
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Supprimer une kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kermesses/{id}/participants/{user_id}": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Ajoute un utilisateur en tant que participant à une kermesse",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Ajouter un participant à une kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kermesses/{id}/stands/{stand_id}": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Ajoute un stand à une kermesse",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Ajouter un stand à une kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "stand_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -153,6 +463,11 @@ const docTemplate = `{
         },
         "/logout": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Déconnexion de l'utilisateur",
                 "produces": [
                     "application/json"
@@ -171,8 +486,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/payment": {
+        "/payments": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Traite une demande de paiement en fonction des détails fournis",
                 "consumes": [
                     "application/json"
@@ -181,7 +501,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Paiement"
+                    "Paiements"
                 ],
                 "summary": "Processus de paiement",
                 "parameters": [
@@ -196,10 +516,10 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.PaymentResponse"
+                            "$ref": "#/definitions/models.Transaction"
                         }
                     },
                     "400": {
@@ -207,11 +527,42 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
+                    }
+                }
+            }
+        },
+        "/payments/user/{userID}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère toutes les transactions liées à un utilisateur",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Paiements"
+                ],
+                "summary": "Récupérer les transactions d'un utilisateur",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "userID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Transaction"
+                            }
                         }
                     }
                 }
@@ -323,14 +674,35 @@ const docTemplate = `{
         },
         "/stands": {
             "get": {
-                "description": "Récupère la liste de tous les stands",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère la liste de tous les stands avec pagination",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Stands"
                 ],
-                "summary": "Récupérer tous les stands",
+                "summary": "Récupérer tous les stands avec pagination",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Numéro de la page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Nombre d'éléments par page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -340,10 +712,21 @@ const docTemplate = `{
                                 "$ref": "#/definitions/models.Stand"
                             }
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
                     }
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Ajoute un nouveau stand",
                 "consumes": [
                     "application/json"
@@ -357,7 +740,7 @@ const docTemplate = `{
                 "summary": "Créer un stand",
                 "parameters": [
                     {
-                        "description": "Détails du stand",
+                        "description": "Détails du stand (Nom, Description, etc.)",
                         "name": "stand",
                         "in": "body",
                         "required": true,
@@ -378,20 +761,31 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
                     }
                 }
             }
         },
         "/stands/{id}": {
             "get": {
-                "description": "Récupère un stand par son ID",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère les détails d'un stand par son ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Stands"
                 ],
-                "summary": "Récupérer un stand",
+                "summary": "Récupérer un stand par ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -408,6 +802,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/models.Stand"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -417,7 +817,12 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Met à jour les détails d'un stand",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Met à jour les détails d'un stand existant",
                 "consumes": [
                     "application/json"
                 ],
@@ -458,10 +863,21 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
                     }
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Supprime un stand par son ID",
                 "tags": [
                     "Stands"
@@ -492,22 +908,51 @@ const docTemplate = `{
                 }
             }
         },
-        "/stats": {
-            "get": {
-                "description": "Renvoie les statistiques actuelles du système",
-                "produces": [
-                    "application/json"
+        "/stands/{id}/interact": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
                 ],
+                "description": "Permet à un utilisateur d'interagir avec un stand spécifique",
                 "tags": [
-                    "Statistiques"
+                    "Stands"
                 ],
-                "summary": "Récupérer les statistiques",
+                "summary": "Interagir avec un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Action effectuée (ex: 'buy_item', 'play_game')",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Quantité à affecter (par défaut 1)",
+                        "name": "quantity",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Statistiques actuelles",
+                        "description": "Interaction réussie",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -515,6 +960,11 @@ const docTemplate = `{
         },
         "/stats/kermesse/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Récupère les statistiques de la kermesse par ID",
                 "produces": [
                     "application/json"
@@ -550,6 +1000,11 @@ const docTemplate = `{
         },
         "/stats/organisateur/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Récupère les statistiques de l'organisateur par ID",
                 "produces": [
                     "application/json"
@@ -585,6 +1040,11 @@ const docTemplate = `{
         },
         "/stats/stand/{id}": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Récupère les statistiques d'un stand par ID",
                 "produces": [
                     "application/json"
@@ -727,69 +1187,13 @@ const docTemplate = `{
                 }
             }
         },
-        "/tombola/buy": {
-            "post": {
-                "description": "Permet à un utilisateur d'acheter un billet de tombola",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tombola"
-                ],
-                "summary": "Acheter un billet de tombola",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Nom d'utilisateur",
-                        "name": "username",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.BuyTombolaTicketResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/tombola/draw": {
-            "post": {
-                "description": "Effectue le tirage de la tombola et retourne le gagnant",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tombola"
-                ],
-                "summary": "Tirage de la tombola",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.DrawTombolaResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/user": {
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Crée un nouvel utilisateur avec le nom d'utilisateur, l'adresse e-mail, et le rôle spécifiés",
                 "consumes": [
                     "application/x-www-form-urlencoded"
@@ -822,6 +1226,13 @@ const docTemplate = `{
                         "name": "role",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Mot de passe de l'utilisateur",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -829,6 +1240,244 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.CreateUserResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/children": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Renvoie la liste de tous les enfants associés à un parent spécifique",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent-Enfant"
+                ],
+                "summary": "Liste des enfants associés à un parent",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/children/{child_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de désassocier un enfant d'un parent et de lui réassigner le rôle par défaut \"parent\"",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent-Enfant"
+                ],
+                "summary": "Supprimer un enfant associé à un parent",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de l'enfant",
+                        "name": "child_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/parent-requests": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de créer une nouvelle demande pour lier un parent et un enfant en utilisant leurs noms d'utilisateur",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent-Enfant"
+                ],
+                "summary": "Ajouter une demande parent-enfant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Nom d'utilisateur du parent",
+                        "name": "parent_username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Nom d'utilisateur de l'enfant",
+                        "name": "child_username",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParentChildRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/parent-requests/accept/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet d'accepter une demande existante pour lier un parent et un enfant",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent-Enfant"
+                ],
+                "summary": "Accepter une demande parent-enfant",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la demande",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParentChildRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/parent-requests/reject/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de refuser une demande existante pour lier un parent et un enfant",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent-Enfant"
+                ],
+                "summary": "Refuser une demande parent-enfant",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la demande",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ParentChildRequest"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/parent-requests/requests": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Renvoie la liste de toutes les demandes en attente de traitement pour l'utilisateur connecté",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Parent-Enfant"
+                ],
+                "summary": "Liste des demandes parent-enfant pour l'utilisateur connecté",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ParentChildRequest"
+                            }
                         }
                     },
                     "400": {
@@ -880,8 +1529,83 @@ const docTemplate = `{
                 }
             }
         },
+        "/ws/history": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Récupère l'historique des messages entre deux utilisateurs, avec pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Récupérer l'historique des messages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ID de l'expéditeur",
+                        "name": "sender_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ID du destinataire",
+                        "name": "receiver_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Nombre de messages à récupérer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Numéro de page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ChatMessage"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/ws/private": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Établit une connexion WebSocket pour la discussion privée en temps réel entre un organisateur et un gérant de stand",
                 "tags": [
                     "WebSocket"
@@ -934,10 +1658,22 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BuyTombolaTicketResponse": {
+        "models.ChatMessage": {
             "type": "object",
             "properties": {
-                "message": {
+                "content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "receiver_id": {
+                    "type": "string"
+                },
+                "sender_id": {
+                    "type": "string"
+                },
+                "timestamp": {
                     "type": "string"
                 }
             }
@@ -958,14 +1694,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.DrawTombolaResponse": {
-            "type": "object",
-            "properties": {
-                "winner": {
-                    "type": "string"
-                }
-            }
-        },
         "models.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -977,10 +1705,13 @@ const docTemplate = `{
         "models.Kermesse": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
                     "type": "string"
                 },
-                "endDate": {
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
                     "type": "string"
                 },
                 "id": {
@@ -992,10 +1723,31 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "startDate": {
+                "organisateurs": {
+                    "description": "Relation many-to-many avec les organisateurs",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "participants": {
+                    "description": "Relation many-to-many avec les participants",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "stands": {
+                    "description": "Association one-to-many avec les stands",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Stand"
+                    }
+                },
+                "start_date": {
                     "type": "string"
                 },
-                "updatedAt": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -1065,6 +1817,41 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ParentChildRequest": {
+            "type": "object",
+            "properties": {
+                "child": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "child_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "parent": {
+                    "description": "Associations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    ]
+                },
+                "parent_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "pending, accepted, rejected",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "models.PaymentRequest": {
             "type": "object",
             "properties": {
@@ -1086,22 +1873,19 @@ const docTemplate = `{
                 }
             }
         },
-        "models.PaymentResponse": {
-            "type": "object",
-            "properties": {
-                "chargeID": {
-                    "description": "L'identifiant du paiement",
-                    "type": "string"
-                }
-            }
-        },
         "models.Stand": {
             "type": "object",
             "properties": {
-                "createdAt": {
+                "created_at": {
+                    "description": "Date de création du stand",
                     "type": "string"
                 },
                 "description": {
+                    "description": "Augmenté la taille pour plus de flexibilité",
+                    "type": "string"
+                },
+                "end_date": {
+                    "description": "Date de fin du stand",
                     "type": "string"
                 },
                 "id": {
@@ -1115,9 +1899,13 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "kermesseID": {
+                "kermesse_id": {
                     "description": "Référence vers la Kermesse",
                     "type": "integer"
+                },
+                "location": {
+                    "description": "Lieu où se trouve le stand",
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
@@ -1125,25 +1913,23 @@ const docTemplate = `{
                 "owner": {
                     "$ref": "#/definitions/models.User"
                 },
-                "ownerID": {
+                "owner_id": {
                     "description": "Référence vers le User qui tient le stand",
                     "type": "integer"
+                },
+                "start_date": {
+                    "description": "Date de début du stand",
+                    "type": "string"
                 },
                 "stock": {
                     "type": "integer"
                 },
                 "type": {
+                    "description": "e.g., \"food\", \"game\"",
                     "type": "string"
                 },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.StandInteractionResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
+                "updated_at": {
+                    "description": "Date de la dernière mise à jour du stand",
                     "type": "string"
                 }
             }
@@ -1171,6 +1957,52 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Transaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "Nombre de jetons utilisés",
+                    "type": "integer"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kermesseID": {
+                    "type": "integer"
+                },
+                "paymentIntent": {
+                    "type": "string"
+                },
+                "stand": {
+                    "description": "Associations",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Stand"
+                        }
+                    ]
+                },
+                "standID": {
+                    "description": "Référence vers le stand",
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.User"
+                },
+                "userID": {
+                    "description": "Référence vers l'utilisateur",
+                    "type": "integer"
                 }
             }
         },

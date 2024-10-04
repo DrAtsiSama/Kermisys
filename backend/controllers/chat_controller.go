@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/dratsisama/Kermisys/backend/database"
 	"github.com/dratsisama/Kermisys/backend/models"
 	"github.com/dratsisama/Kermisys/backend/services"
 	"github.com/gin-gonic/gin"
@@ -26,6 +29,7 @@ var upgrader = websocket.Upgrader{
 // @Failure      401  {object}  models.ErrorResponse
 // @Failure      500  {object}  models.ErrorResponse
 // @Router       /ws/private [get]
+// @Security Bearer
 func ChatHandler(c *gin.Context) {
 	// Récupérer l'en-tête Authorization
 	authHeader := c.GetHeader("Authorization")
@@ -45,7 +49,6 @@ func ChatHandler(c *gin.Context) {
 	// Récupérer l'ID de l'utilisateur et son rôle à partir du token
 	username := claims["username"].(string)
 
-	// Utiliser fmt.Sprintf pour convertir userID en string, avec vérification de nil
 	rawUserID, ok := claims["userID"]
 	if !ok || rawUserID == nil {
 		log.Println("Erreur : userID n'est pas présent dans le token JWT")
@@ -55,6 +58,8 @@ func ChatHandler(c *gin.Context) {
 
 	userID := fmt.Sprintf("%v", rawUserID) // Convertir userID en string
 	userRole := claims["role"].(string)
+
+	log.Printf("Connexion WebSocket établie par l'utilisateur : %s (ID: %s, Rôle: %s)", username, userID, userRole)
 
 	// Vérifier si l'utilisateur est autorisé
 	if userRole != "admin" && userRole != "stand_manager" {
@@ -85,13 +90,16 @@ func ChatHandler(c *gin.Context) {
 			break
 		}
 
-		// Vérifier que `msg.SenderID` correspond à `userID` connecté à la session WebSocket
-		if msg.SenderID != userID {
-			log.Printf("Tentative de message non autorisé de %s alors que l'utilisateur connecté est %s", msg.SenderID, userID)
+		// Assigner l'ID de l'utilisateur connecté comme SenderID
+		msg.SenderID = userID
+
+		// Vérifier que le champ ReceiverID est présent
+		if msg.ReceiverID == "" {
+			log.Printf("Erreur : ReceiverID manquant pour le message de %s", msg.SenderID)
 			errMsg := struct {
 				Error string `json:"error"`
 			}{
-				Error: "Unauthorized sender",
+				Error: "ReceiverID is required",
 			}
 			if err := conn.WriteJSON(errMsg); err != nil {
 				log.Printf("Erreur lors de l'envoi du message d'erreur WebSocket : %v", err)
@@ -100,8 +108,61 @@ func ChatHandler(c *gin.Context) {
 			continue
 		}
 
+		// Afficher le message reçu dans la console pour vérification
+		log.Printf("Message reçu de %s à %s : %s", msg.SenderID, msg.ReceiverID, msg.Content)
+
+		// Sauvegarder le message dans la base de données
+		chatMessage := models.ChatMessage{
+			SenderID:   msg.SenderID,
+			ReceiverID: msg.ReceiverID,
+			Content:    msg.Content,
+			Timestamp:  time.Now(),
+		}
+		if err := services.SaveChatMessage(chatMessage); err != nil {
+			log.Printf("Erreur lors de la sauvegarde du message : %v", err)
+			continue
+		}
+
 		// Envoyer le message à l'utilisateur destinataire
 		services.SendPrivateMessage(msg)
 		log.Printf("Message envoyé de %s à %s : %s", msg.SenderID, msg.ReceiverID, msg.Content)
 	}
+}
+
+// @Summary      Récupérer l'historique des messages
+// @Description  Récupère l'historique des messages entre deux utilisateurs, avec pagination
+// @Tags         Chat
+// @Produce      json
+// @Param        sender_id   query     string  true  "ID de l'expéditeur"
+// @Param        receiver_id query     string  true  "ID du destinataire"
+// @Param        limit       query     int     false "Nombre de messages à récupérer" default(50)
+// @Param        page        query     int     false "Numéro de page" default(1)
+// @Success      200  {array}   models.ChatMessage
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /ws/history [get]
+// @Security Bearer
+func GetChatHistory(c *gin.Context) {
+	senderID := c.Query("sender_id")
+	receiverID := c.Query("receiver_id")
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	offset := (page - 1) * limit
+
+	if senderID == "" || receiverID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Sender ID and Receiver ID are required"})
+		return
+	}
+
+	var messages []models.ChatMessage
+	if err := database.DB.Where("(sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)", senderID, receiverID, receiverID, senderID).
+		Order("timestamp DESC").
+		Offset(offset).
+		Limit(limit).
+		Find(&messages).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, messages)
 }

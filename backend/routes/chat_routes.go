@@ -10,5 +10,6 @@ func initializeChatRoutes(r *gin.RouterGroup) {
 	{
 		// WebSocket chat route
 		chatRoutes.GET("/private", controllers.ChatHandler)
+		chatRoutes.GET("/history", controllers.GetChatHistory)
 	}
 }
