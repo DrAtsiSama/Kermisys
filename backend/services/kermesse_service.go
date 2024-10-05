@@ -19,6 +19,14 @@ func CreateKermesse(kermesse models.Kermesse, userID uint) error {
 		return errors.New("Utilisateur non trouvé")
 	}
 
+	// Vérifier si l'utilisateur est déjà organisateur ou admin
+	if user.Role != "organisateur" && user.Role != "admin" {
+		user.Role = "organisateur"
+		if err := database.DB.Save(&user).Error; err != nil {
+			return errors.New("Impossible de mettre à jour le rôle de l'utilisateur")
+		}
+	}
+
 	kermesse.Organisateurs = append(kermesse.Organisateurs, user)
 
 	if err := database.DB.Create(&kermesse).Error; err != nil {
@@ -162,4 +170,21 @@ func LeaveKermesse(kermesseID, userID uint) error {
 	}
 
 	return nil
+}
+
+// GetUserTokens récupère le total des tokens pour un utilisateur donné
+func GetUserTokens(userID uint) (int, error) {
+	var totalTokens int
+	err := database.DB.Table("tokens").Where("user_id = ?", userID).Select("COALESCE(SUM(amount), 0)").Scan(&totalTokens).Error
+	if err != nil {
+		return 0, err
+	}
+	return totalTokens, nil
+}
+
+// DoesKermesseExist vérifie si une kermesse existe dans la base de données
+func DoesKermesseExist(kermesseID uint) bool {
+	var kermesse models.Kermesse
+	err := database.DB.First(&kermesse, kermesseID).Error
+	return err == nil
 }

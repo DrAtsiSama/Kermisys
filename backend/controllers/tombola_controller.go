@@ -45,7 +45,7 @@ func CreateTombola(c *gin.Context) {
 	// Créer la tombola
 	tombola, err := services.CreateTombola(userID, uint(kermesseID))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Erreur lors de la création de la tombola"})
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
 		return
 	}
 

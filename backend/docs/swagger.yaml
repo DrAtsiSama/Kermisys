@@ -185,6 +185,21 @@ definitions:
         description: 'Source de paiement (ex: un token de carte)'
         type: string
     type: object
+  models.PlayerScore:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      score:
+        type: integer
+      stand_id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   models.ScoreRequest:
     properties:
       score:
@@ -481,13 +496,13 @@ paths:
       summary: Créer une nouvelle kermesse
       tags:
       - Kermesses
-  /kermesses/{id}:
+  /kermesses/{kermesse_id}:
     delete:
       description: Supprime une kermesse par son ID
       parameters:
       - description: ID de la kermesse
         in: path
-        name: id
+        name: kermesse_id
         required: true
         type: integer
       responses:
@@ -511,7 +526,7 @@ paths:
       parameters:
       - description: ID de la kermesse
         in: path
-        name: id
+        name: kermesse_id
         required: true
         type: integer
       produces:
@@ -541,7 +556,7 @@ paths:
       parameters:
       - description: ID de la kermesse
         in: path
-        name: id
+        name: kermesse_id
         required: true
         type: integer
       - description: Détails mis à jour de la kermesse
@@ -574,13 +589,13 @@ paths:
       summary: Mettre à jour une kermesse
       tags:
       - Kermesses
-  /kermesses/{id}/participants/{user_id}:
+  /kermesses/{kermesse_id}/participants/{user_id}:
     post:
       description: Ajoute un utilisateur en tant que participant à une kermesse
       parameters:
       - description: ID de la kermesse
         in: path
-        name: id
+        name: kermesse_id
         required: true
         type: integer
       - description: ID de l'utilisateur
@@ -604,13 +619,13 @@ paths:
       summary: Ajouter un participant à une kermesse
       tags:
       - Kermesses
-  /kermesses/{id}/stands/{stand_id}:
+  /kermesses/{kermesse_id}/stands/{stand_id}:
     post:
       description: Ajoute un stand à une kermesse
       parameters:
       - description: ID de la kermesse
         in: path
-        name: id
+        name: kermesse_id
         required: true
         type: integer
       - description: ID du stand
@@ -634,6 +649,88 @@ paths:
       summary: Ajouter un stand à une kermesse
       tags:
       - Kermesses
+  /kermesses/{kermesse_id}/stands/{stand_id}/player-scores/{user_id}:
+    delete:
+      description: Permet à un gérant de stand ou organisateur de supprimer le score
+        d'un utilisateur pour un stand spécifique d'une kermesse
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: kermesse_id
+        required: true
+        type: integer
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      - description: ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Score supprimé avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Supprimer un score pour un utilisateur et un stand
+      tags:
+      - Stands
+    post:
+      consumes:
+      - application/json
+      description: Permet à un organisateur ou admin d'ajouter ou de mettre à jour
+        le score d'un utilisateur pour un stand spécifique
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: kermesse_id
+        required: true
+        type: integer
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      - description: ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Score à ajouter
+        in: body
+        name: score
+        required: true
+        schema:
+          $ref: '#/definitions/models.ScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Score ajouté ou mis à jour avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Ajouter ou mettre à jour un score pour un utilisateur spécifique et
+        un stand
+      tags:
+      - Stands
   /kermesses/join/{kermesse_id}:
     post:
       description: Permet à un utilisateur de rejoindre une kermesse
@@ -854,7 +951,7 @@ paths:
     post:
       consumes:
       - application/x-www-form-urlencoded
-      description: Crée un nouvel utilisateur
+      description: Crée un nouvel utilisateur avec le rôle "parent" par défaut
       parameters:
       - description: Nom d'utilisateur
         in: formData
@@ -869,11 +966,6 @@ paths:
       - description: Adresse e-mail
         in: formData
         name: email
-        required: true
-        type: string
-      - description: Rôle de l'utilisateur
-        in: formData
-        name: role
         required: true
         type: string
       produces:
@@ -955,7 +1047,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Ajoute un nouveau stand
+      description: Ajoute un nouveau stand et associe l'utilisateur créateur en tant
+        que propriétaire
       parameters:
       - description: Détails du stand (Nom, Description, etc.)
         in: body
@@ -1102,60 +1195,34 @@ paths:
       summary: Interagir avec un stand
       tags:
       - Stands
-  /stands/{stand_id}/score:
-    delete:
-      description: Permet à un utilisateur de supprimer son score pour un stand spécifique
+  /stands/{stand_id}/players/{user_id}/score:
+    get:
+      description: Retourne le score d'un joueur pour un stand spécifique
       parameters:
       - description: ID du stand
         in: path
         name: stand_id
         required: true
         type: integer
-      responses:
-        "200":
-          description: Score supprimé avec succès
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      security:
-      - Bearer: []
-      summary: Supprimer un score pour un utilisateur et un stand
-      tags:
-      - Stands
-    post:
-      consumes:
-      - application/json
-      description: Permet à un utilisateur d'ajouter ou de mettre à jour son score
-        pour un stand spécifique
-      parameters:
-      - description: ID du stand
+      - description: ID de l'utilisateur
         in: path
-        name: stand_id
+        name: user_id
         required: true
         type: integer
-      - description: Score à ajouter
-        in: body
-        name: score
-        required: true
-        schema:
-          $ref: '#/definitions/models.ScoreRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Score ajouté ou mis à jour avec succès
+          description: OK
           schema:
-            type: string
-        "400":
-          description: Bad Request
+            $ref: '#/definitions/models.PlayerScore'
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:
       - Bearer: []
-      summary: Ajouter ou mettre à jour un score pour un utilisateur et un stand
+      summary: Récupérer le score d'un joueur pour un stand spécifique
       tags:
       - Stands
   /stats/kermesse/{id}:

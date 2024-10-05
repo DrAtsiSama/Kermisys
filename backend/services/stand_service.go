@@ -9,9 +9,33 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreateStand ajoute un nouveau stand à la base de données
+// CreateStand ajoute un nouveau stand et donne le rôle gérant_stand au créateur si ce n'est pas déjà le cas
 func CreateStand(stand *models.Stand) error {
-	return database.DB.Create(stand).Error
+	var owner models.User
+	// Vérifier si le propriétaire du stand existe
+	if err := database.DB.First(&owner, stand.OwnerID).Error; err != nil {
+		return errors.New("Propriétaire non trouvé")
+	}
+
+	// Vérifier si l'utilisateur est déjà gérant de stand, organisateur ou admin
+	if owner.Role != "gerant_stand" && owner.Role != "organisateur" && owner.Role != "admin" {
+		// Attribuer le rôle gérant de stand
+		owner.Role = "gerant_stand"
+		if err := database.DB.Save(&owner).Error; err != nil {
+			return errors.New("Impossible de mettre à jour le rôle de l'utilisateur")
+		}
+	}
+
+	// Ajouter les champs automatiques pour la création du stand
+	stand.CreatedAt = time.Now()
+	stand.UpdatedAt = time.Now()
+
+	// Sauvegarder le stand dans la base de données
+	if err := database.DB.Create(stand).Error; err != nil {
+		return errors.New("Erreur lors de la création du stand")
+	}
+
+	return nil
 }
 
 // GetStand récupère un stand par son ID
@@ -159,8 +183,30 @@ func UpdateStandStats(standID uint, tokensUsed, itemsSold int, revenue float64) 
 	return database.DB.Save(&stats).Error
 }
 
-// AddOrUpdatePlayerScore ajoute ou met à jour le score d'un joueur pour un stand spécifique
-func AddOrUpdatePlayerScore(userID, standID uint, score int) error {
+// ValidateKermesseAndStand vérifie si un stand appartient à une kermesse et si l'utilisateur est bien inscrit à la kermesse
+func ValidateKermesseAndStand(kermesseID, standID, userID uint) error {
+	// Vérifier si le stand appartient à la kermesse
+	var stand models.Stand
+	if err := database.DB.Where("id = ? AND kermesse_id = ?", standID, kermesseID).First(&stand).Error; err != nil {
+		return errors.New("Le stand ne fait pas partie de cette kermesse")
+	}
+
+	// Vérifier si l'utilisateur est inscrit à la kermesse
+	var participant models.Kermesse
+	if err := database.DB.Where("id = ? AND EXISTS (SELECT 1 FROM kermesse_participants WHERE kermesse_id = ? AND user_id = ?)", kermesseID, kermesseID, userID).First(&participant).Error; err != nil {
+		return errors.New("Vous n'êtes pas inscrit à cette kermesse")
+	}
+
+	return nil
+}
+
+// AddOrUpdatePlayerScore ajoute ou met à jour le score d'un joueur pour un stand spécifique dans une kermesse
+func AddOrUpdatePlayerScore(kermesseID, standID, userID uint, score int) error {
+	// Vérifier si le stand fait partie de la kermesse et si l'utilisateur y est inscrit
+	if err := ValidateKermesseAndStand(kermesseID, standID, userID); err != nil {
+		return err
+	}
+
 	var playerScore models.PlayerScore
 
 	// Vérifier si un score existe déjà pour cet utilisateur et ce stand
@@ -182,11 +228,23 @@ func AddOrUpdatePlayerScore(userID, standID uint, score int) error {
 	return database.DB.Save(&playerScore).Error
 }
 
-// RemovePlayerScore supprime un score existant pour un joueur dans un stand spécifique
-func RemovePlayerScore(userID, standID uint) error {
+// RemovePlayerScore supprime un score existant pour un joueur dans un stand spécifique d'une kermesse
+func RemovePlayerScore(kermesseID, standID, userID uint) error {
+	// Vérifier si le stand fait partie de la kermesse et si l'utilisateur y est inscrit
+	if err := ValidateKermesseAndStand(kermesseID, standID, userID); err != nil {
+		return err
+	}
+
 	var playerScore models.PlayerScore
 	if err := database.DB.Where("user_id = ? AND stand_id = ?", userID, standID).First(&playerScore).Error; err != nil {
 		return errors.New("Score not found")
 	}
 	return database.DB.Delete(&playerScore).Error
+}
+
+// DoesStandExist vérifie si un stand existe dans la base de données
+func DoesStandExist(standID uint) bool {
+	var stand models.Stand
+	err := database.DB.First(&stand, standID).Error
+	return err == nil
 }

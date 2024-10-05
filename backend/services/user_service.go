@@ -230,3 +230,22 @@ func IsOrganisateur(userID uint, kermesseID uint) bool {
 	}
 	return false
 }
+
+// IsParticipantOfKermesse vérifie si un utilisateur est un participant de la kermesse
+func IsParticipantOfKermesse(kermesseID, userID uint) bool {
+	var count int64
+	// Vérifier si l'utilisateur fait partie des participants de la kermesse
+	err := database.DB.Table("kermesse_participants").
+		Where("kermesse_id = ? AND user_id = ?", kermesseID, userID).
+		Count(&count).Error
+	return err == nil && count > 0
+}
+
+// GetPlayerScore récupère le score d'un joueur pour un stand spécifique
+func GetPlayerScore(userID, standID uint) (*models.PlayerScore, error) {
+	var playerScore models.PlayerScore
+	if err := database.DB.Where("user_id = ? AND stand_id = ?", userID, standID).First(&playerScore).Error; err != nil {
+		return nil, err
+	}
+	return &playerScore, nil
+}

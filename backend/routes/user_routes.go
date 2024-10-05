@@ -18,7 +18,7 @@ func initializeUserRoutes(r *gin.RouterGroup) {
 		userRoutes.PUT("/parent-requests/reject/:id", controllers.RejectParentChildRequest) // Rejeter une demande
 		userRoutes.GET("/parent-requests/requests", controllers.ListParentChildRequests)    // Liste des demandes parent-enfant
 		userRoutes.GET("/children", controllers.ListChildrenHandler)                        // Liste des enfants d'un parent
-		userRoutes.DELETE("/children/:child_id", controllers.RemoveChildHandler)
+		userRoutes.DELETE("/children/:child_id", middlewares.RoleMiddleware("parent"), controllers.RemoveChildHandler)
 		userRoutes.GET("/tokens", controllers.GetUserTokens)
 	}
 }

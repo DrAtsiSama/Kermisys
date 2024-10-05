@@ -111,14 +111,14 @@ func GetAllKermesses(c *gin.Context) {
 // @Description  Récupère les détails d'une kermesse par son ID
 // @Tags         Kermesses
 // @Produce      json
-// @Param        id  path  int  true  "ID de la kermesse"
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
 // @Success      200  {object}  models.Kermesse
 // @Failure      404  {object}  models.ErrorResponse
 // @Failure      500  {object}  models.ErrorResponse
-// @Router       /kermesses/{id} [get]
+// @Router       /kermesses/{kermesse_id} [get]
 // @Security Bearer
 func GetKermesseByID(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("kermesse_id")
 	var kermesse models.Kermesse
 	if err := database.DB.First(&kermesse, id).Error; err != nil {
 		if err.Error() == "record not found" {
@@ -136,16 +136,16 @@ func GetKermesseByID(c *gin.Context) {
 // @Tags         Kermesses
 // @Accept       json
 // @Produce      json
-// @Param        id        path  int  true  "ID de la kermesse"
-// @Param        kermesse  body  models.Kermesse  true  "Détails mis à jour de la kermesse"
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
+// @Param        kermesse     body  models.Kermesse  true  "Détails mis à jour de la kermesse"
 // @Success      200  {object}  models.Kermesse
 // @Failure      400  {object}  models.ErrorResponse
 // @Failure      404  {object}  models.ErrorResponse
 // @Failure      500  {object}  models.ErrorResponse
-// @Router       /kermesses/{id} [put]
+// @Router       /kermesses/{kermesse_id} [put]
 // @Security Bearer
 func UpdateKermesse(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("kermesse_id")
 	var kermesse models.Kermesse
 	if err := database.DB.First(&kermesse, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Kermesse not found"})
@@ -168,14 +168,14 @@ func UpdateKermesse(c *gin.Context) {
 // @Summary      Supprimer une kermesse
 // @Description  Supprime une kermesse par son ID
 // @Tags         Kermesses
-// @Param        id  path  int  true  "ID de la kermesse"
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
 // @Success      204
 // @Failure      404  {object}  models.ErrorResponse
 // @Failure      500  {object}  models.ErrorResponse
-// @Router       /kermesses/{id} [delete]
+// @Router       /kermesses/{kermesse_id} [delete]
 // @Security Bearer
 func DeleteKermesse(c *gin.Context) {
-	id := c.Param("id")
+	id := c.Param("kermesse_id")
 	if err := database.DB.Delete(&models.Kermesse{}, id).Error; err != nil {
 		if err.Error() == "record not found" {
 			c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Kermesse not found"})
@@ -191,14 +191,14 @@ func DeleteKermesse(c *gin.Context) {
 // @Description  Ajoute un utilisateur en tant que participant à une kermesse
 // @Tags         Kermesses
 // @Produce      json
-// @Param        id      path  int  true  "ID de la kermesse"
-// @Param        user_id path  int  true  "ID de l'utilisateur"
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
+// @Param        user_id      path  int  true  "ID de l'utilisateur"
 // @Success      200  {object}  models.MessageResponse
 // @Failure      400  {object}  models.ErrorResponse
-// @Router       /kermesses/{id}/participants/{user_id} [post]
+// @Router       /kermesses/{kermesse_id}/participants/{user_id} [post]
 // @Security Bearer
 func AddParticipantToKermesse(c *gin.Context) {
-	kermesseID, _ := strconv.Atoi(c.Param("id"))
+	kermesseID, _ := strconv.Atoi(c.Param("kermesse_id"))
 	userID, _ := strconv.Atoi(c.Param("user_id"))
 	err := services.AddParticipant(uint(kermesseID), uint(userID))
 	if err != nil {
@@ -212,14 +212,14 @@ func AddParticipantToKermesse(c *gin.Context) {
 // @Description  Ajoute un stand à une kermesse
 // @Tags         Kermesses
 // @Produce      json
-// @Param        id       path  int  true  "ID de la kermesse"
-// @Param        stand_id path  int  true  "ID du stand"
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
+// @Param        stand_id     path  int  true  "ID du stand"
 // @Success      200  {object}  models.MessageResponse
 // @Failure      400  {object}  models.ErrorResponse
-// @Router       /kermesses/{id}/stands/{stand_id} [post]
+// @Router       /kermesses/{kermesse_id}/stands/{stand_id} [post]
 // @Security Bearer
 func AddStandToKermesse(c *gin.Context) {
-	kermesseID, _ := strconv.Atoi(c.Param("id"))
+	kermesseID, _ := strconv.Atoi(c.Param("kermesse_id"))
 	standID, _ := strconv.Atoi(c.Param("stand_id"))
 	err := services.AddStand(uint(kermesseID), uint(standID))
 	if err != nil {
@@ -283,4 +283,109 @@ func LeaveKermesseHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Désinscription réussie"})
+}
+
+// @Summary      Ajouter ou mettre à jour un score pour un utilisateur spécifique et un stand
+// @Description  Permet à un organisateur ou admin d'ajouter ou de mettre à jour le score d'un utilisateur pour un stand spécifique
+// @Tags         Stands
+// @Accept       json
+// @Produce      json
+// @Param        kermesse_id  path      int              true  "ID de la kermesse"
+// @Param        stand_id     path      int              true  "ID du stand"
+// @Param        user_id      path      int              true  "ID de l'utilisateur"
+// @Param        score        body      models.ScoreRequest  true  "Score à ajouter"
+// @Success      200  {string}  string  "Score ajouté ou mis à jour avec succès"
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /kermesses/{kermesse_id}/stands/{stand_id}/player-scores/{user_id} [post]
+// @Security Bearer
+func AddOrUpdatePlayerScore(c *gin.Context) {
+	kermesseID, err := strconv.Atoi(c.Param("kermesse_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid kermesse ID"})
+		return
+	}
+
+	standID, err := strconv.Atoi(c.Param("stand_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
+		return
+	}
+
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Vérifier que la kermesse et le stand existent
+	if !services.DoesKermesseExist(uint(kermesseID)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Kermesse not found"})
+		return
+	}
+
+	if !services.DoesStandExist(uint(standID)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Stand not found"})
+		return
+	}
+
+	// Vérifier que l'utilisateur est un participant de la kermesse
+	if !services.IsParticipantOfKermesse(uint(kermesseID), uint(userID)) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User is not a participant of the kermesse"})
+		return
+	}
+
+	// Récupérer le score à partir du corps de la requête
+	var scoreRequest models.ScoreRequest
+	if err := c.ShouldBindJSON(&scoreRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid score data"})
+		return
+	}
+
+	// Ajouter ou mettre à jour le score
+	if err := services.AddOrUpdatePlayerScore(uint(kermesseID), uint(standID), uint(userID), scoreRequest.Score); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Score ajouté ou mis à jour avec succès"})
+}
+
+// @Summary      Supprimer un score pour un utilisateur et un stand
+// @Description  Permet à un gérant de stand ou organisateur de supprimer le score d'un utilisateur pour un stand spécifique d'une kermesse
+// @Tags         Stands
+// @Param        kermesse_id  path      int     true  "ID de la kermesse"
+// @Param        stand_id     path      int     true  "ID du stand"
+// @Param        user_id      path      int     true  "ID de l'utilisateur"
+// @Success      200  {string}  string  "Score supprimé avec succès"
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /kermesses/{kermesse_id}/stands/{stand_id}/player-scores/{user_id} [delete]
+// @Security Bearer
+func RemovePlayerScore(c *gin.Context) {
+	kermesseID, err := strconv.Atoi(c.Param("kermesse_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid kermesse ID"})
+		return
+	}
+
+	standID, err := strconv.Atoi(c.Param("stand_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
+		return
+	}
+
+	// Récupérer l'ID de l'utilisateur à partir du paramètre de la requête
+	userID, err := strconv.Atoi(c.Param("user_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Supprimer le score
+	if err := services.RemovePlayerScore(uint(kermesseID), uint(standID), uint(userID)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Score supprimé avec succès"})
 }

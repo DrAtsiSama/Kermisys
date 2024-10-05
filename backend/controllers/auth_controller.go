@@ -40,14 +40,13 @@ func Login(c *gin.Context) {
 }
 
 // @Summary      Inscription
-// @Description  Crée un nouvel utilisateur
+// @Description  Crée un nouvel utilisateur avec le rôle "parent" par défaut
 // @Tags         Authentification
 // @Accept       x-www-form-urlencoded
 // @Produce      json
 // @Param        username  formData  string  true  "Nom d'utilisateur"
 // @Param        password  formData  string  true  "Mot de passe"
 // @Param        email     formData  string  true  "Adresse e-mail"
-// @Param        role      formData  string  true  "Rôle de l'utilisateur"
 // @Success      201  {object}  models.MessageResponse
 // @Failure      400  {object}  models.ErrorResponse
 // @Router       /register [post]
@@ -55,13 +54,15 @@ func Register(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 	email := c.PostForm("email")
-	role := c.PostForm("role")
 
 	// Vérifier si les champs obligatoires sont remplis
-	if username == "" || password == "" || role == "" || email == "" {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Missing username, password, email, or role"})
+	if username == "" || password == "" || email == "" {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Missing username, password, or email"})
 		return
 	}
+
+	// Définir le rôle par défaut à "parent"
+	role := "parent"
 
 	// Ajouter l'utilisateur
 	err := services.CreateUser(username, email, role)
@@ -77,7 +78,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, models.MessageResponse{Message: "User registered successfully"})
+	c.JSON(http.StatusCreated, models.MessageResponse{Message: "User registered successfully with parent role"})
 }
 
 // @Summary      Déconnexion

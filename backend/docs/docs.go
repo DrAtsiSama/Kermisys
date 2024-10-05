@@ -256,7 +256,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/kermesses/{id}": {
+        "/kermesses/{kermesse_id}": {
             "get": {
                 "security": [
                     {
@@ -275,7 +275,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "ID de la kermesse",
-                        "name": "id",
+                        "name": "kermesse_id",
                         "in": "path",
                         "required": true
                     }
@@ -322,7 +322,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "ID de la kermesse",
-                        "name": "id",
+                        "name": "kermesse_id",
                         "in": "path",
                         "required": true
                     },
@@ -378,7 +378,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "ID de la kermesse",
-                        "name": "id",
+                        "name": "kermesse_id",
                         "in": "path",
                         "required": true
                     }
@@ -402,7 +402,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/kermesses/{id}/participants/{user_id}": {
+        "/kermesses/{kermesse_id}/participants/{user_id}": {
             "post": {
                 "security": [
                     {
@@ -421,7 +421,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "ID de la kermesse",
-                        "name": "id",
+                        "name": "kermesse_id",
                         "in": "path",
                         "required": true
                     },
@@ -449,7 +449,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/kermesses/{id}/stands/{stand_id}": {
+        "/kermesses/{kermesse_id}/stands/{stand_id}": {
             "post": {
                 "security": [
                     {
@@ -468,7 +468,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "ID de la kermesse",
-                        "name": "id",
+                        "name": "kermesse_id",
                         "in": "path",
                         "required": true
                     },
@@ -485,6 +485,127 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kermesses/{kermesse_id}/stands/{stand_id}/player-scores/{user_id}": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un organisateur ou admin d'ajouter ou de mettre à jour le score d'un utilisateur pour un stand spécifique",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Ajouter ou mettre à jour un score pour un utilisateur spécifique et un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "kermesse_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "stand_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Score à ajouter",
+                        "name": "score",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score ajouté ou mis à jour avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un gérant de stand ou organisateur de supprimer le score d'un utilisateur pour un stand spécifique d'une kermesse",
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Supprimer un score pour un utilisateur et un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "kermesse_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "stand_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score supprimé avec succès",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -759,7 +880,7 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
-                "description": "Crée un nouvel utilisateur",
+                "description": "Crée un nouvel utilisateur avec le rôle \"parent\" par défaut",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],
@@ -789,13 +910,6 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Adresse e-mail",
                         "name": "email",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Rôle de l'utilisateur",
-                        "name": "role",
                         "in": "formData",
                         "required": true
                     }
@@ -916,7 +1030,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Ajoute un nouveau stand",
+                "description": "Ajoute un nouveau stand et associe l'utilisateur créateur en tant que propriétaire",
                 "consumes": [
                     "application/json"
                 ],
@@ -1147,24 +1261,21 @@ const docTemplate = `{
                 }
             }
         },
-        "/stands/{stand_id}/score": {
-            "post": {
+        "/stands/{stand_id}/players/{user_id}/score": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "Permet à un utilisateur d'ajouter ou de mettre à jour son score pour un stand spécifique",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retourne le score d'un joueur pour un stand spécifique",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Stands"
                 ],
-                "summary": "Ajouter ou mettre à jour un score pour un utilisateur et un stand",
+                "summary": "Récupérer le score d'un joueur pour un stand spécifique",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1174,59 +1285,22 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Score à ajouter",
-                        "name": "score",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ScoreRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Score ajouté ou mis à jour avec succès",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Permet à un utilisateur de supprimer son score pour un stand spécifique",
-                "tags": [
-                    "Stands"
-                ],
-                "summary": "Supprimer un score pour un utilisateur et un stand",
-                "parameters": [
-                    {
                         "type": "integer",
-                        "description": "ID du stand",
-                        "name": "stand_id",
+                        "description": "ID de l'utilisateur",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Score supprimé avec succès",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.PlayerScore"
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -2511,6 +2585,29 @@ const docTemplate = `{
                 "source": {
                     "description": "Source de paiement (ex: un token de carte)",
                     "type": "string"
+                }
+            }
+        },
+        "models.PlayerScore": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "stand_id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },

@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -9,17 +10,28 @@ import (
 	"github.com/dratsisama/Kermisys/backend/models"
 )
 
+// CreateTombola crée une nouvelle tombola pour une kermesse, avec une vérification pour éviter la création multiple
 func CreateTombola(userID uint, kermesseID uint) (*models.Tombola, error) {
+	// Vérifier s'il existe déjà une tombola pour cette kermesse
+	var existingTombola models.Tombola
+	if err := database.DB.Where("kermesse_id = ?", kermesseID).First(&existingTombola).Error; err == nil {
+		// Si une tombola existe déjà, renvoyer une erreur
+		return nil, fmt.Errorf("Une tombola existe déjà pour cette kermesse")
+	}
+
+	// Créer la nouvelle tombola avec le nom formaté
 	tombola := models.Tombola{
-		Name:       `Nouvelle Tombola ${kermesseID}`,
+		Name:       fmt.Sprintf("Nouvelle Tombola %d", kermesseID),
 		KermesseID: kermesseID,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),
 	}
 
+	// Enregistrer la tombola dans la base de données
 	if err := database.DB.Create(&tombola).Error; err != nil {
 		return nil, err
 	}
+
 	return &tombola, nil
 }
 

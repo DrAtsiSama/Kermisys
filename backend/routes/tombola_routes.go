@@ -17,7 +17,7 @@ func initializeTombolaRoutes(r *gin.RouterGroup) {
 		tombolaRoutes.DELETE("/:tombola_id/lot/:lot_id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.RemoveLotFromTombola)
 		tombolaRoutes.GET("/:tombola_id", controllers.GetTombola)
 		tombolaRoutes.POST("/:tombola_id/draw", middlewares.RoleMiddleware("admin", "organisateur"), controllers.DrawTombola)
-		tombolaRoutes.GET("/:tombola_id/lots-won", controllers.GetUserWonLots)
+		tombolaRoutes.GET("/:tombola_id/lots-won", middlewares.RoleMiddleware("admin", "organisateur"), controllers.GetUserWonLots)
 		tombolaRoutes.POST("/:tombola_id/buy-ticket", controllers.BuyTombolaTicket)
 	}
 }

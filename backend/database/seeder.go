@@ -19,7 +19,7 @@ func SeedDatabase() {
 
 	log.Println("Insertion des données par défaut...")
 
-	// Créer des utilisateurs, y compris admin atsi et gérants
+	// Créer des utilisateurs, y compris admin atsi, gérants et autres utilisateurs
 	users := []models.User{
 		{Username: "atsi", PasswordHash: "hashed_atsi", Email: "atsi@example.com", Role: "admin"},
 		{Username: "parent1", PasswordHash: "hashed_password", Email: "parent1@example.com", Role: "parent"},
@@ -29,16 +29,33 @@ func SeedDatabase() {
 		{Username: "enfant3", PasswordHash: "hashed_password", Email: "enfant3@example.com", Role: "eleve"},
 		{Username: "gerant1", PasswordHash: "hashed_password", Email: "gerant1@example.com", Role: "gerant_kermesse"},
 		{Username: "gerant2", PasswordHash: "hashed_password", Email: "gerant2@example.com", Role: "gerant_stand"},
+		{Username: "organisateur1", PasswordHash: "hashed_password", Email: "organisateur1@example.com", Role: "organisateur"},
+		{Username: "organisateur2", PasswordHash: "hashed_password", Email: "organisateur2@example.com", Role: "organisateur"},
 	}
 	DB.Create(&users)
 
 	// Créer des kermesses gérées par des gérants
 	kermesses := []models.Kermesse{
 		{Name: "Kermesse de Printemps", Location: "École A", StartDate: time.Now(), EndDate: time.Now().AddDate(0, 1, 0), Organisateurs: []models.User{users[6]}},
-		{Name: "Kermesse d'Été", Location: "École B", StartDate: time.Now(), EndDate: time.Now().AddDate(0, 2, 0), Organisateurs: []models.User{users[6]}},
+		{Name: "Kermesse d'Été", Location: "École B", StartDate: time.Now(), EndDate: time.Now().AddDate(0, 2, 0), Organisateurs: []models.User{users[7]}},
 		{Name: "Kermesse d'Hiver", Location: "École C", StartDate: time.Now(), EndDate: time.Now().AddDate(0, 3, 0), Organisateurs: []models.User{users[6]}},
 	}
 	DB.Create(&kermesses)
+
+	// Créer des tombolas gérées par des organisateurs
+	tombolas := []models.Tombola{
+		{Name: "Tombola Printemps", KermesseID: kermesses[0].ID, Organisateurs: []models.User{users[8]}},
+		{Name: "Tombola Été", KermesseID: kermesses[1].ID, Organisateurs: []models.User{users[9]}},
+	}
+	DB.Create(&tombolas)
+
+	// Créer des lots de tombola
+	lots := []models.Lot{
+		{Name: "Vélo tout-terrain", Quantity: 1, TombolaID: tombolas[0].ID},
+		{Name: "Tablette tactile", Quantity: 2, TombolaID: tombolas[0].ID},
+		{Name: "Console de jeu", Quantity: 1, TombolaID: tombolas[1].ID},
+	}
+	DB.Create(&lots)
 
 	// Associer des participants aux kermesses
 	for _, kermesse := range kermesses {
@@ -54,21 +71,6 @@ func SeedDatabase() {
 		}
 		DB.Create(&stands)
 	}
-
-	// Créer des lots de tombola
-	lots := []models.TombolaLot{
-		{KermesseID: kermesses[0].ID, Description: "Vélo tout-terrain", Quantity: 1},
-		{KermesseID: kermesses[0].ID, Description: "Tablette tactile", Quantity: 2},
-	}
-	DB.Create(&lots)
-
-	// Associer des enfants aux parents
-	parentChild := []models.ParentChild{
-		{ParentID: users[1].ID, ChildID: users[3].ID},
-		{ParentID: users[1].ID, ChildID: users[4].ID},
-		{ParentID: users[2].ID, ChildID: users[5].ID},
-	}
-	DB.Create(&parentChild)
 
 	// Créer des achats de jetons
 	tokens := []models.Token{

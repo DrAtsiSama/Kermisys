@@ -10,13 +10,12 @@ func initializeStandRoutes(r *gin.RouterGroup) {
 	standRoutes := r.Group("/stands")
 	{
 		// Routes to interact with stands
-		standRoutes.POST("/:id/interact", controllers.InteractWithStand)
-		standRoutes.GET("/:id", controllers.GetStand)
+		standRoutes.POST("/:stand_id/interact", middlewares.RoleMiddleware("admin", "organisateur", "parent", "enfant"), controllers.InteractWithStand)
+		standRoutes.GET("/:stand_id", controllers.GetStand)
 		standRoutes.GET("", controllers.GetAllStands)
-		standRoutes.POST("", middlewares.RoleMiddleware("admin", "organisateur"), controllers.CreateStand)
-		standRoutes.PUT("/:id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.UpdateStand)
-		standRoutes.DELETE("/:id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.DeleteStand)
-		standRoutes.POST("/:id/score", controllers.AddOrUpdatePlayerScore)
-		standRoutes.DELETE("/:id/score", controllers.RemovePlayerScore)
+		standRoutes.POST("", middlewares.RoleMiddleware("admin", "organisateur", "parent", "gerant_stand"), controllers.CreateStand)
+		standRoutes.PUT("/:stand_id", middlewares.RoleMiddleware("admin", "organisateur", "gerant_stand"), controllers.UpdateStand)    // Modifier ici aussi
+		standRoutes.DELETE("/:stand_id", middlewares.RoleMiddleware("admin", "organisateur", "gerant_stand"), controllers.DeleteStand) // Et ici aussi
+		standRoutes.GET("/:stand_id/players/:user_id/score", middlewares.RoleMiddleware("admin", "organisateur", "gerant_stand"), controllers.GetPlayerScore)
 	}
 }
