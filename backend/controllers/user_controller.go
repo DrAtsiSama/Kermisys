@@ -306,3 +306,41 @@ func RemoveChildHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Enfant supprimé et rôle réassigné"})
 }
+
+// TokenResponse représente la réponse avec le nombre de jetons
+type TokenResponse struct {
+	Tokens int `json:"tokens"`
+}
+
+// @Summary      Récupérer le nombre de jetons de l'utilisateur connecté
+// @Description  Renvoie le total des jetons disponibles pour l'utilisateur connecté
+// @Tags         Jetons
+// @Produce      json
+// @Success      200  {object}  TokenResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /user/tokens [get]
+// @Security Bearer
+func GetUserTokens(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Impossible de récupérer l'ID utilisateur depuis le token"})
+		return
+	}
+
+	// Convertir l'ID utilisateur en entier
+	userIDUint, ok := userID.(uint)
+	if !ok {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid user ID format"})
+		return
+	}
+
+	// Appel du service pour obtenir le nombre de jetons
+	tokens, err := services.GetTotalTokens(userIDUint)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	// Utiliser la structure TokenResponse pour envoyer la réponse
+	c.JSON(http.StatusOK, TokenResponse{Tokens: tokens})
+}

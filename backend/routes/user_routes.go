@@ -19,5 +19,6 @@ func initializeUserRoutes(r *gin.RouterGroup) {
 		userRoutes.GET("/parent-requests/requests", controllers.ListParentChildRequests)    // Liste des demandes parent-enfant
 		userRoutes.GET("/children", controllers.ListChildrenHandler)                        // Liste des enfants d'un parent
 		userRoutes.DELETE("/children/:child_id", controllers.RemoveChildHandler)
+		userRoutes.GET("/tokens", controllers.GetUserTokens)
 	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/dratsisama/Kermisys/backend/database"
 	"github.com/dratsisama/Kermisys/backend/models"
+	"gorm.io/gorm"
 )
 
 // CreateStand ajoute un nouveau stand à la base de données
@@ -54,11 +55,16 @@ func GetAllStands(page, limit int) ([]models.Stand, error) {
 	return stands, nil
 }
 
-// InteractWithStand permet à un utilisateur de jouer ou d'acheter un objet à un stand
+// InteractWithStand permet à un utilisateur d'interagir avec un stand spécifique
 func InteractWithStand(userID, standID uint, action, item string, quantity, score int) error {
 	var stand models.Stand
-	if err := database.DB.First(&stand, standID).Error; err != nil {
+	if err := database.DB.Preload("Kermesse.Organisateurs").First(&stand, standID).Error; err != nil {
 		return errors.New("Stand not found")
+	}
+
+	// Vérifier si l'utilisateur est inscrit à la kermesse
+	if !isUserRegisteredForKermesse(userID, stand.KermesseID) {
+		return errors.New("User is not registered for this kermesse")
 	}
 
 	// Validation de l'action
@@ -66,29 +72,29 @@ func InteractWithStand(userID, standID uint, action, item string, quantity, scor
 		return errors.New("Invalid action")
 	}
 
-	// Enregistrer l'interaction
-	interaction := models.StandInteraction{
-		UserID:    userID,
-		StandID:   standID,
-		Action:    action,
-		Item:      item,
-		Quantity:  quantity,
-		Score:     score,
-		CreatedAt: time.Now(),
+	// Déduire les jetons de l'utilisateur pour les actions "play_game" et "buy_item"
+	if action == "play_game" || action == "buy_item" {
+		if err := DeductUserTokens(userID, quantity); err != nil {
+			return err
+		}
 	}
 
-	// Gestion des actions
+	// Gestion des actions sur le stock du stand
 	switch action {
 	case "play_game":
 		if score > stand.Stock {
 			return errors.New("Not enough stock for this game")
 		}
 		stand.Stock -= score
+		UpdateStandStats(standID, 0, 0, float64(quantity)/10)
+		UpdateKermesseStats(stand.KermesseID, 0, quantity, float64(quantity)/10)
 	case "buy_item":
 		if stand.Stock < quantity {
 			return errors.New("Not enough stock")
 		}
 		stand.Stock -= quantity
+		UpdateStandStats(standID, quantity*10, quantity, float64(quantity)/10)
+		UpdateKermesseStats(stand.KermesseID, 0, quantity, float64(quantity)/10)
 	case "add_stock":
 		stand.Stock += quantity
 	case "remove_stock":
@@ -103,10 +109,84 @@ func InteractWithStand(userID, standID uint, action, item string, quantity, scor
 		return err
 	}
 
-	// Sauvegarder l'interaction dans la base de données
+	// Enregistrer l'interaction dans la base de données
+	interaction := models.StandInteraction{
+		UserID:    userID,
+		StandID:   standID,
+		Action:    action,
+		Item:      item,
+		Quantity:  quantity,
+		Score:     score,
+		CreatedAt: time.Now(),
+	}
 	if err := database.DB.Create(&interaction).Error; err != nil {
 		return err
 	}
 
+	// Mettre à jour les statistiques de l'organisateur
+	UpdateOrganisateurStats(stand.Kermesse.Organisateurs, quantity)
+
 	return nil
+}
+
+// UpdateStandStats met à jour ou crée les statistiques du stand
+func UpdateStandStats(standID uint, tokensUsed, itemsSold int, revenue float64) error {
+	var stats models.StandStats
+	err := database.DB.Where("stand_id = ?", standID).First(&stats).Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	// Si les stats n'existent pas encore, les créer
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		stats = models.StandStats{
+			StandID:         standID,
+			TotalTokensUsed: tokensUsed,
+			ItemsSold:       itemsSold,
+			Revenue:         revenue,
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
+		}
+		return database.DB.Create(&stats).Error
+	}
+
+	// Sinon, les mettre à jour
+	stats.TotalTokensUsed += tokensUsed
+	stats.ItemsSold += itemsSold
+	stats.Revenue += revenue
+	stats.UpdatedAt = time.Now()
+
+	return database.DB.Save(&stats).Error
+}
+
+// AddOrUpdatePlayerScore ajoute ou met à jour le score d'un joueur pour un stand spécifique
+func AddOrUpdatePlayerScore(userID, standID uint, score int) error {
+	var playerScore models.PlayerScore
+
+	// Vérifier si un score existe déjà pour cet utilisateur et ce stand
+	err := database.DB.Where("user_id = ? AND stand_id = ?", userID, standID).First(&playerScore).Error
+	if err != nil {
+		// Si le score n'existe pas encore, on le crée
+		playerScore = models.PlayerScore{
+			UserID:    userID,
+			StandID:   standID,
+			Score:     score,
+			CreatedAt: time.Now(),
+		}
+		return database.DB.Create(&playerScore).Error
+	}
+
+	// Si le score existe, le mettre à jour
+	playerScore.Score = score
+	playerScore.CreatedAt = time.Now()
+	return database.DB.Save(&playerScore).Error
+}
+
+// RemovePlayerScore supprime un score existant pour un joueur dans un stand spécifique
+func RemovePlayerScore(userID, standID uint) error {
+	var playerScore models.PlayerScore
+	if err := database.DB.Where("user_id = ? AND stand_id = ?", userID, standID).First(&playerScore).Error; err != nil {
+		return errors.New("Score not found")
+	}
+	return database.DB.Delete(&playerScore).Error
 }

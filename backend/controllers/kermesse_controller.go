@@ -228,3 +228,59 @@ func AddStandToKermesse(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Stand ajouté avec succès"})
 }
+
+// @Summary      Rejoindre une kermesse
+// @Description  Permet à un utilisateur de rejoindre une kermesse
+// @Tags         Kermesses
+// @Produce      json
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
+// @Success      200  {string}  string  "Inscription réussie"
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /kermesses/join/{kermesse_id} [post]
+// @Security Bearer
+func JoinKermesseHandler(c *gin.Context) {
+	kermesseID, err := strconv.Atoi(c.Param("kermesse_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid kermesse ID"})
+		return
+	}
+
+	// Récupérer l'ID utilisateur depuis le JWT
+	userID := c.MustGet("userID").(uint)
+
+	err = services.JoinKermesse(uint(kermesseID), userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Inscription réussie"})
+}
+
+// @Summary      Quitter une kermesse
+// @Description  Permet à un utilisateur de quitter une kermesse
+// @Tags         Kermesses
+// @Produce      json
+// @Param        kermesse_id  path  int  true  "ID de la kermesse"
+// @Success      200  {string}  string  "Désinscription réussie"
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /kermesses/leave/{kermesse_id} [post]
+// @Security Bearer
+func LeaveKermesseHandler(c *gin.Context) {
+	kermesseID, err := strconv.Atoi(c.Param("kermesse_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid kermesse ID"})
+		return
+	}
+
+	// Récupérer l'ID utilisateur depuis le JWT
+	userID := c.MustGet("userID").(uint)
+
+	err = services.LeaveKermesse(uint(kermesseID), userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Désinscription réussie"})
+}

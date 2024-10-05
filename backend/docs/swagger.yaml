@@ -1,5 +1,29 @@
 basePath: /
 definitions:
+  controllers.AchatRequest:
+    properties:
+      amount:
+        type: integer
+    type: object
+  controllers.DistributeTokensRequest:
+    properties:
+      amount:
+        type: integer
+      child:
+        type: string
+    type: object
+  controllers.TokenResponse:
+    properties:
+      tokens:
+        type: integer
+    type: object
+  controllers.WinnerResponse:
+    properties:
+      lot:
+        $ref: '#/definitions/models.Lot'
+      winner:
+        type: string
+    type: object
   models.BuyTokensResponse:
     properties:
       message:
@@ -89,6 +113,21 @@ definitions:
       token:
         type: string
     type: object
+  models.Lot:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      quantity:
+        type: integer
+      tombola_id:
+        type: integer
+      user_won_lots:
+        items:
+          $ref: '#/definitions/models.UserWonLot'
+        type: array
+    type: object
   models.MessageResponse:
     properties:
       message:
@@ -146,6 +185,13 @@ definitions:
         description: 'Source de paiement (ex: un token de carte)'
         type: string
     type: object
+  models.ScoreRequest:
+    properties:
+      score:
+        type: integer
+    required:
+    - score
+    type: object
   models.Stand:
     properties:
       created_at:
@@ -202,6 +248,47 @@ definitions:
         type: integer
       total_tokens_used:
         type: integer
+      updated_at:
+        type: string
+    type: object
+  models.Ticket:
+    properties:
+      id:
+        type: integer
+      kermesse_id:
+        type: integer
+      tombola_id:
+        type: integer
+      user_id:
+        type: integer
+      winner:
+        type: boolean
+    type: object
+  models.Tombola:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      kermesse_id:
+        type: integer
+      lots:
+        description: Relation avec les lots
+        items:
+          $ref: '#/definitions/models.Lot'
+        type: array
+      name:
+        type: string
+      organisateurs:
+        description: Relation avec les organisateurs
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+      tickets:
+        description: Relation avec les tickets
+        items:
+          $ref: '#/definitions/models.Ticket'
+        type: array
       updated_at:
         type: string
     type: object
@@ -267,6 +354,19 @@ definitions:
       role:
         type: string
       username:
+        type: string
+    type: object
+  models.UserWonLot:
+    properties:
+      id:
+        type: integer
+      lot_id:
+        type: integer
+      tombola_id:
+        type: integer
+      user_id:
+        type: integer
+      won_at:
         type: string
     type: object
 host: localhost:8080
@@ -534,6 +634,56 @@ paths:
       summary: Ajouter un stand à une kermesse
       tags:
       - Kermesses
+  /kermesses/join/{kermesse_id}:
+    post:
+      description: Permet à un utilisateur de rejoindre une kermesse
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: kermesse_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Inscription réussie
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Rejoindre une kermesse
+      tags:
+      - Kermesses
+  /kermesses/leave/{kermesse_id}:
+    post:
+      description: Permet à un utilisateur de quitter une kermesse
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: kermesse_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Désinscription réussie
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Quitter une kermesse
+      tags:
+      - Kermesses
   /login:
     post:
       consumes:
@@ -579,6 +729,76 @@ paths:
       summary: Déconnexion
       tags:
       - Authentification
+  /parent/achat/{user_id}:
+    post:
+      consumes:
+      - application/json
+      description: Permet à un utilisateur d'acheter des jetons après un paiement
+        réussi
+      parameters:
+      - description: ID de l'utilisateur
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: Nombre de jetons à acheter
+        in: body
+        name: achatRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.AchatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BuyTokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Achat de jetons
+      tags:
+      - Jetons
+  /parent/distribute-tokens:
+    post:
+      consumes:
+      - application/json
+      description: Permet à un parent de distribuer des jetons à son enfant
+      parameters:
+      - description: Détails de la distribution des jetons
+        in: body
+        name: distributeTokensRequest
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.DistributeTokensRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DistributeTokensResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Distribution de jetons
+      tags:
+      - Jetons
   /payments:
     post:
       consumes:
@@ -882,6 +1102,62 @@ paths:
       summary: Interagir avec un stand
       tags:
       - Stands
+  /stands/{stand_id}/score:
+    delete:
+      description: Permet à un utilisateur de supprimer son score pour un stand spécifique
+      parameters:
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Score supprimé avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Supprimer un score pour un utilisateur et un stand
+      tags:
+      - Stands
+    post:
+      consumes:
+      - application/json
+      description: Permet à un utilisateur d'ajouter ou de mettre à jour son score
+        pour un stand spécifique
+      parameters:
+      - description: ID du stand
+        in: path
+        name: stand_id
+        required: true
+        type: integer
+      - description: Score à ajouter
+        in: body
+        name: score
+        required: true
+        schema:
+          $ref: '#/definitions/models.ScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Score ajouté ou mis à jour avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Ajouter ou mettre à jour un score pour un utilisateur et un stand
+      tags:
+      - Stands
   /stats/kermesse/{id}:
     get:
       description: Récupère les statistiques de la kermesse par ID
@@ -957,20 +1233,13 @@ paths:
       summary: Obtenir les statistiques d'un stand
       tags:
       - Statistiques
-  /tokens/buy:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Permet à un utilisateur d'acheter des jetons
+  /tombolas/{tombola_id}:
+    get:
+      description: Permet d'afficher une tombola et les lots associés
       parameters:
-      - description: Nom d'utilisateur
-        in: header
-        name: username
-        required: true
-        type: string
-      - description: Nombre de jetons à acheter
-        in: formData
-        name: amount
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
         required: true
         type: integer
       produces:
@@ -979,37 +1248,75 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.BuyTokensResponse'
+            $ref: '#/definitions/models.Tombola'
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
+      security:
+      - Bearer: []
+      summary: Afficher une tombola avec ses lots
+      tags:
+      - Tombolas
+  /tombolas/{tombola_id}/buy-ticket:
+    post:
+      description: Permet à un utilisateur d'acheter un ticket de tombola (maximum
+        1 par kermesse)
+      parameters:
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ticket acheté avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Achat de jetons
+      security:
+      - Bearer: []
+      summary: Acheter un ticket de tombola
       tags:
-      - Jetons
-  /tokens/distribute:
-    post:
-      consumes:
-      - application/x-www-form-urlencoded
-      description: Permet à un parent de distribuer des jetons à son enfant
+      - Tombolas
+  /tombolas/{tombola_id}/delete:
+    delete:
+      description: Supprime une tombola existante (réservé aux organisateurs ou admins)
       parameters:
-      - description: Nom d'utilisateur du parent
-        in: header
-        name: username
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
         required: true
-        type: string
-      - description: Nom d'utilisateur de l'enfant
-        in: formData
-        name: child
-        required: true
-        type: string
-      - description: Nombre de jetons à distribuer
-        in: formData
-        name: amount
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Tombola supprimée avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Supprimer une tombola
+      tags:
+      - Tombolas
+  /tombolas/{tombola_id}/draw:
+    post:
+      description: Permet de réaliser le tirage au sort d'une tombola et d'annoncer
+        le gagnant
+      parameters:
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
         required: true
         type: integer
       produces:
@@ -1018,18 +1325,159 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.DistributeTokensResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
+            $ref: '#/definitions/controllers.WinnerResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
-      summary: Distribution de jetons
+      security:
+      - Bearer: []
+      summary: Tirage au sort d'une tombola
       tags:
-      - Jetons
+      - Tombolas
+  /tombolas/{tombola_id}/edit:
+    put:
+      description: Modifie une tombola existante (réservé aux organisateurs ou admins)
+      parameters:
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
+        required: true
+        type: integer
+      - description: Nouveaux détails de la tombola (nom et KermesseID)
+        in: body
+        name: tombola
+        required: true
+        schema:
+          $ref: '#/definitions/models.Tombola'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Tombola'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Modifier une tombola (seul le nom et la KermesseID peuvent être modifiés)
+      tags:
+      - Tombolas
+  /tombolas/{tombola_id}/lot:
+    post:
+      description: Permet d'ajouter un lot à une tombola (réservé aux organisateurs
+        ou admins)
+      parameters:
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
+        required: true
+        type: integer
+      - description: Lot à ajouter
+        in: body
+        name: lot
+        required: true
+        schema:
+          $ref: '#/definitions/models.Lot'
+      responses:
+        "200":
+          description: Lot ajouté avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Ajouter un lot à une tombola
+      tags:
+      - Tombolas
+  /tombolas/{tombola_id}/lot/{lot_id}:
+    delete:
+      description: Permet de retirer un lot d'une tombola (réservé aux organisateurs
+        ou admins)
+      parameters:
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
+        required: true
+        type: integer
+      - description: ID du lot
+        in: path
+        name: lot_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Lot retiré avec succès
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Retirer un lot d'une tombola
+      tags:
+      - Tombolas
+  /tombolas/{tombola_id}/lots-won:
+    get:
+      description: Permet de récupérer la liste des lots gagnés par l'utilisateur
+        pour une tombola donnée
+      parameters:
+      - description: ID de la tombola
+        in: path
+        name: tombola_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Lot'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Récupérer les lots gagnés par un utilisateur
+      tags:
+      - Tombolas
+  /tombolas/create/{kermesse_id}:
+    post:
+      description: Crée une nouvelle tombola (réservé aux organisateurs ou aux admins)
+      parameters:
+      - description: ID de la kermesse
+        in: path
+        name: kermesse_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Tombola'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Créer une tombola
+      tags:
+      - Tombolas
   /user:
     post:
       consumes:
@@ -1253,6 +1701,25 @@ paths:
       summary: Liste des demandes parent-enfant pour l'utilisateur connecté
       tags:
       - Parent-Enfant
+  /user/tokens:
+    get:
+      description: Renvoie le total des jetons disponibles pour l'utilisateur connecté
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Récupérer le nombre de jetons de l'utilisateur connecté
+      tags:
+      - Jetons
   /ws/history:
     get:
       description: Récupère l'historique des messages entre deux utilisateurs, avec

@@ -166,3 +166,67 @@ func RemoveChild(childID int) error {
 
 	return nil
 }
+
+func GetTotalTokens(userID uint) (int, error) {
+	var totalTokens int
+	// Utiliser COALESCE pour éviter que SUM renvoie NULL
+	err := database.DB.Model(&models.Token{}).
+		Where("user_id = ?", userID).
+		Select("COALESCE(SUM(amount), 0)").Scan(&totalTokens).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return totalTokens, nil
+}
+
+// DeductUserTokens retire un nombre de jetons de l'utilisateur
+func DeductUserTokens(userID uint, amount int) error {
+	var totalTokens int
+	err := database.DB.Model(&models.Token{}).Where("user_id = ?", userID).Select("SUM(amount)").Scan(&totalTokens).Error
+	if err != nil {
+		return err
+	}
+
+	// Vérification si l'utilisateur a assez de jetons
+	if totalTokens < amount {
+		return errors.New("Not enough tokens")
+	}
+
+	// Déduire les jetons
+	err = database.DB.Model(&models.Token{}).Where("user_id = ?", userID).Update("amount", totalTokens-amount).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// isUserRegisteredForKermesse vérifie si un utilisateur est inscrit à une kermesse
+func isUserRegisteredForKermesse(userID, kermesseID uint) bool {
+	var kermesse models.Kermesse
+	if err := database.DB.Preload("Participants").First(&kermesse, kermesseID).Error; err != nil {
+		return false
+	}
+
+	for _, participant := range kermesse.Participants {
+		if participant.ID == userID {
+			return true
+		}
+	}
+	return false
+}
+
+func IsOrganisateur(userID uint, kermesseID uint) bool {
+	var kermesse models.Kermesse
+	// Charger la kermesse et vérifier si l'utilisateur est dans la liste des organisateurs
+	if err := database.DB.Preload("Organisateurs").First(&kermesse, kermesseID).Error; err != nil {
+		return false
+	}
+
+	for _, organisateur := range kermesse.Organisateurs {
+		if organisateur.ID == userID {
+			return true
+		}
+	}
+	return false
+}

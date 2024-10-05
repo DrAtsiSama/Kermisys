@@ -17,7 +17,7 @@ func InitStripe() {
 // ProcessPayment processes a payment using Stripe
 func ProcessPayment(amount int64, currency, description, source string) (string, error) {
 	params := &stripe.ChargeParams{
-		Amount:      stripe.Int64(amount),
+		Amount:      stripe.Int64(amount), // Montant en centimes
 		Currency:    stripe.String(currency),
 		Description: stripe.String(description),
 	}

@@ -22,6 +22,10 @@ func MigrateModels() {
 		&models.PlayerScore{},
 		&models.ParentChildRequest{},
 		&models.ChatMessage{},
+		&models.Lot{},
+		&models.Tombola{},
+		&models.Ticket{},
+		&models.UserWonLot{},
 	)
 
 	if err != nil {

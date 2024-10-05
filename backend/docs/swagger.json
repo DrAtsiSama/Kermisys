@@ -170,6 +170,86 @@
                 }
             }
         },
+        "/kermesses/join/{kermesse_id}": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un utilisateur de rejoindre une kermesse",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Rejoindre une kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "kermesse_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Inscription réussie",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/kermesses/leave/{kermesse_id}": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un utilisateur de quitter une kermesse",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Kermesses"
+                ],
+                "summary": "Quitter une kermesse",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "kermesse_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Désinscription réussie",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/kermesses/{id}": {
             "get": {
                 "security": [
@@ -475,6 +555,115 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.MessageResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/parent/achat/{user_id}": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un utilisateur d'acheter des jetons après un paiement réussi",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jetons"
+                ],
+                "summary": "Achat de jetons",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de l'utilisateur",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Nombre de jetons à acheter",
+                        "name": "achatRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AchatRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BuyTokensResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/parent/distribute-tokens": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un parent de distribuer des jetons à son enfant",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jetons"
+                ],
+                "summary": "Distribution de jetons",
+                "parameters": [
+                    {
+                        "description": "Détails de la distribution des jetons",
+                        "name": "distributeTokensRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.DistributeTokensRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DistributeTokensResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -952,6 +1141,93 @@
                 }
             }
         },
+        "/stands/{stand_id}/score": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un utilisateur d'ajouter ou de mettre à jour son score pour un stand spécifique",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Ajouter ou mettre à jour un score pour un utilisateur et un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "stand_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Score à ajouter",
+                        "name": "score",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ScoreRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score ajouté ou mis à jour avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un utilisateur de supprimer son score pour un stand spécifique",
+                "tags": [
+                    "Stands"
+                ],
+                "summary": "Supprimer un score pour un utilisateur et un stand",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID du stand",
+                        "name": "stand_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score supprimé avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/stats/kermesse/{id}": {
             "get": {
                 "security": [
@@ -1072,32 +1348,67 @@
                 }
             }
         },
-        "/tokens/buy": {
+        "/tombolas/create/{kermesse_id}": {
             "post": {
-                "description": "Permet à un utilisateur d'acheter des jetons",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
+                "security": [
+                    {
+                        "Bearer": []
+                    }
                 ],
+                "description": "Crée une nouvelle tombola (réservé aux organisateurs ou aux admins)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Jetons"
+                    "Tombolas"
                 ],
-                "summary": "Achat de jetons",
+                "summary": "Créer une tombola",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Nom d'utilisateur",
-                        "name": "username",
-                        "in": "header",
+                        "type": "integer",
+                        "description": "ID de la kermesse",
+                        "name": "kermesse_id",
+                        "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.Tombola"
+                        }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet d'afficher une tombola et les lots associés",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Afficher une tombola avec ses lots",
+                "parameters": [
                     {
                         "type": "integer",
-                        "description": "Nombre de jetons à acheter",
-                        "name": "amount",
-                        "in": "formData",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -1105,13 +1416,127 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.BuyTokensResponse"
+                            "$ref": "#/definitions/models.Tombola"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}/buy-ticket": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet à un utilisateur d'acheter un ticket de tombola (maximum 1 par kermesse)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Acheter un ticket de tombola",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ticket acheté avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Supprime une tombola existante (réservé aux organisateurs ou admins)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Supprimer une tombola",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tombola supprimée avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}/draw": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de réaliser le tirage au sort d'une tombola et d'annoncer le gagnant",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Tirage au sort d'une tombola",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.WinnerResponse"
                         }
                     },
                     "500": {
@@ -1123,47 +1548,44 @@
                 }
             }
         },
-        "/tokens/distribute": {
-            "post": {
-                "description": "Permet à un parent de distribuer des jetons à son enfant",
-                "consumes": [
-                    "application/x-www-form-urlencoded"
+        "/tombolas/{tombola_id}/edit": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
                 ],
+                "description": "Modifie une tombola existante (réservé aux organisateurs ou admins)",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Jetons"
+                    "Tombolas"
                 ],
-                "summary": "Distribution de jetons",
+                "summary": "Modifier une tombola (seul le nom et la KermesseID peuvent être modifiés)",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Nom d'utilisateur du parent",
-                        "name": "username",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Nom d'utilisateur de l'enfant",
-                        "name": "child",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
-                        "description": "Nombre de jetons à distribuer",
-                        "name": "amount",
-                        "in": "formData",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Nouveaux détails de la tombola (nom et KermesseID)",
+                        "name": "tombola",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Tombola"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.DistributeTokensResponse"
+                            "$ref": "#/definitions/models.Tombola"
                         }
                     },
                     "400": {
@@ -1171,9 +1593,136 @@
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}/lot": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet d'ajouter un lot à une tombola (réservé aux organisateurs ou admins)",
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Ajouter un lot à une tombola",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
+                        "required": true
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    {
+                        "description": "Lot à ajouter",
+                        "name": "lot",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Lot"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lot ajouté avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}/lot/{lot_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de retirer un lot d'une tombola (réservé aux organisateurs ou admins)",
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Retirer un lot d'une tombola",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID du lot",
+                        "name": "lot_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lot retiré avec succès",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/tombolas/{tombola_id}/lots-won": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Permet de récupérer la liste des lots gagnés par l'utilisateur pour une tombola donnée",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tombolas"
+                ],
+                "summary": "Récupérer les lots gagnés par un utilisateur",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID de la tombola",
+                        "name": "tombola_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Lot"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -1483,6 +2032,37 @@
                 }
             }
         },
+        "/user/tokens": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Renvoie le total des jetons disponibles pour l'utilisateur connecté",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Jetons"
+                ],
+                "summary": "Récupérer le nombre de jetons de l'utilisateur connecté",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/{username}": {
             "get": {
                 "security": [
@@ -1644,6 +2224,44 @@
         }
     },
     "definitions": {
+        "controllers.AchatRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.DistributeTokensRequest": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "child": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "tokens": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.WinnerResponse": {
+            "type": "object",
+            "properties": {
+                "lot": {
+                    "$ref": "#/definitions/models.Lot"
+                },
+                "winner": {
+                    "type": "string"
+                }
+            }
+        },
         "models.BuyTokensResponse": {
             "type": "object",
             "properties": {
@@ -1780,6 +2398,29 @@
                 }
             }
         },
+        "models.Lot": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "tombola_id": {
+                    "type": "integer"
+                },
+                "user_won_lots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserWonLot"
+                    }
+                }
+            }
+        },
         "models.MessageResponse": {
             "type": "object",
             "properties": {
@@ -1867,6 +2508,17 @@
                 }
             }
         },
+        "models.ScoreRequest": {
+            "type": "object",
+            "required": [
+                "score"
+            ],
+            "properties": {
+                "score": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Stand": {
             "type": "object",
             "properties": {
@@ -1948,6 +2600,67 @@
                 },
                 "total_tokens_used": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Ticket": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "kermesse_id": {
+                    "type": "integer"
+                },
+                "tombola_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "winner": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "models.Tombola": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "kermesse_id": {
+                    "type": "integer"
+                },
+                "lots": {
+                    "description": "Relation avec les lots",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Lot"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organisateurs": {
+                    "description": "Relation avec les organisateurs",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.User"
+                    }
+                },
+                "tickets": {
+                    "description": "Relation avec les tickets",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Ticket"
+                    }
                 },
                 "updated_at": {
                     "type": "string"
@@ -2047,6 +2760,26 @@
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserWonLot": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "lot_id": {
+                    "type": "integer"
+                },
+                "tombola_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "won_at": {
                     "type": "string"
                 }
             }

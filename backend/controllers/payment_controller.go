@@ -23,20 +23,27 @@ import (
 // @Security Bearer
 func ProcessPayment(c *gin.Context) {
 	// Récupérer l'utilisateur depuis le JWT
-	user, exists := c.Get("userID")
+	rawUserID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Utilisateur non authentifié"})
 		return
 	}
 
-	// Assurer que l'utilisateur est du bon type
-	authUser, ok := user.(models.User)
+	// Convertir l'ID utilisateur en uint
+	userIDFloat, ok := rawUserID.(uint)
 	if !ok {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Erreur d'authentification"})
 		return
 	}
 
-	userID := authUser.ID
+	userID := uint(userIDFloat)
+
+	// Vérifier si l'utilisateur existe dans la base de données
+	var authUser models.User
+	if err := database.DB.First(&authUser, userID).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Utilisateur non trouvé"})
+		return
+	}
 
 	var paymentData struct {
 		KermesseID uint   `json:"kermesse_id"`

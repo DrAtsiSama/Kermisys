@@ -16,5 +16,7 @@ func initializeStandRoutes(r *gin.RouterGroup) {
 		standRoutes.POST("", middlewares.RoleMiddleware("admin", "organisateur"), controllers.CreateStand)
 		standRoutes.PUT("/:id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.UpdateStand)
 		standRoutes.DELETE("/:id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.DeleteStand)
+		standRoutes.POST("/:id/score", controllers.AddOrUpdatePlayerScore)
+		standRoutes.DELETE("/:id/score", controllers.RemovePlayerScore)
 	}
 }

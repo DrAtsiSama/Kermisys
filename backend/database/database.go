@@ -55,6 +55,10 @@ func Migrate() {
 		&models.ParentChildRequest{},
 		&models.ChatMessage{},
 		&models.OrganisateurStats{},
+		&models.Tombola{},
+		&models.Lot{},
+		&models.Ticket{},
+		&models.UserWonLot{},
 	)
 
 	if err != nil {

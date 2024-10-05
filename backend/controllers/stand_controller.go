@@ -175,17 +175,19 @@ func InteractWithStand(c *gin.Context) {
 		return
 	}
 
-	// Récupérer l'ID de l'utilisateur à partir du contexte ou d'un token d'authentification si nécessaire
-	rawUserID := c.MustGet("userID")
+	// Récupérer l'ID de l'utilisateur à partir du contexte (stocké sous forme de uint)
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Utilisateur non authentifié"})
+		return
+	}
 
-	// Convertir en uint, en supposant que `rawUserID` est en fait un float64
-	userID, ok := rawUserID.(float64)
+	// Convertir l'ID utilisateur en uint
+	userIDUint, ok := userID.(uint)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid userID type"})
 		return
 	}
-
-	userIDUint := uint(userID)
 
 	// Récupérer l'action et la quantité
 	action := c.Query("action")
@@ -198,4 +200,70 @@ func InteractWithStand(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Stand interaction successful"})
+}
+
+// @Summary      Ajouter ou mettre à jour un score pour un utilisateur et un stand
+// @Description  Permet à un utilisateur d'ajouter ou de mettre à jour son score pour un stand spécifique
+// @Tags         Stands
+// @Accept       json
+// @Produce      json
+// @Param        stand_id  path      int              true  "ID du stand"
+// @Param        score     body      models.ScoreRequest  true  "Score à ajouter"
+// @Success      200  {string}  string  "Score ajouté ou mis à jour avec succès"
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /stands/{stand_id}/score [post]
+// @Security Bearer
+func AddOrUpdatePlayerScore(c *gin.Context) {
+	standID, err := strconv.Atoi(c.Param("stand_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
+		return
+	}
+
+	// Récupérer l'ID de l'utilisateur à partir du token JWT
+	rawUserID := c.MustGet("userID")
+	userID := uint(rawUserID.(float64))
+
+	// Récupérer le score à partir du corps de la requête
+	var scoreRequest models.ScoreRequest
+	if err := c.ShouldBindJSON(&scoreRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid score data"})
+		return
+	}
+
+	// Ajouter ou mettre à jour le score
+	if err := services.AddOrUpdatePlayerScore(userID, uint(standID), scoreRequest.Score); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Score ajouté ou mis à jour avec succès"})
+}
+
+// @Summary      Supprimer un score pour un utilisateur et un stand
+// @Description  Permet à un utilisateur de supprimer son score pour un stand spécifique
+// @Tags         Stands
+// @Param        stand_id  path      int     true  "ID du stand"
+// @Success      200  {string}  string  "Score supprimé avec succès"
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /stands/{stand_id}/score [delete]
+// @Security Bearer
+func RemovePlayerScore(c *gin.Context) {
+	standID, err := strconv.Atoi(c.Param("stand_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
+		return
+	}
+
+	// Récupérer l'ID de l'utilisateur à partir du token JWT
+	rawUserID := c.MustGet("userID")
+	userID := uint(rawUserID.(float64))
+
+	// Supprimer le score
+	if err := services.RemovePlayerScore(userID, uint(standID)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Score supprimé avec succès"})
 }

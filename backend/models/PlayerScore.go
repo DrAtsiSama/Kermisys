@@ -14,3 +14,8 @@ type PlayerScore struct {
 func (PlayerScore) TableName() string {
 	return "player_scores"
 }
+
+// ScoreRequest représente la structure pour le score
+type ScoreRequest struct {
+	Score int `json:"score" binding:"required"`
+}
