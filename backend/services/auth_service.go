@@ -5,12 +5,14 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"net/smtp"
+	"log"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dratsisama/Kermisys/backend/database"
 	"github.com/dratsisama/Kermisys/backend/models"
+	"github.com/mailjet/mailjet-apiv3-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -73,21 +75,49 @@ func GenerateResetToken(email string) (string, error) {
 	return token, nil
 }
 
-// sendResetEmail envoie un e-mail de réinitialisation
+// sendResetEmail envoie un e-mail de réinitialisation via Mailjet
 func sendResetEmail(email, token string) {
-	// Configuration SMTP (à adapter en fonction de ton fournisseur)
-	from := "your-email@example.com"
-	password := "your-email-password"
-	smtpHost := "smtp.example.com"
-	smtpPort := "587"
+	// Récupérer les variables d'environnement
+	from := os.Getenv("MAILJET_FROM_EMAIL")    // Votre adresse e-mail d'envoi
+	fromName := os.Getenv("MAILJET_FROM_NAME") // Nom de l'expéditeur
+	baseURL := os.Getenv("BASE_URL")           // URL de base configurable via .env
 
-	msg := fmt.Sprintf("Cliquez sur ce lien pour réinitialiser votre mot de passe : http://localhost:8080/reset-password?token=%s", token)
-	message := []byte("Subject: Réinitialisation de mot de passe\n\n" + msg)
+	// Construire le lien de réinitialisation de mot de passe
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", baseURL, token)
+	subject := "Réinitialisation de mot de passe"
+	htmlContent := fmt.Sprintf("<h3>Réinitialisation de votre mot de passe</h3><p>Cliquez sur ce lien pour réinitialiser votre mot de passe : <a href='%s'>Réinitialiser</a></p>", resetLink)
+	textContent := fmt.Sprintf("Ceci est un lien pour réinitialiser votre mot de passe : %s", resetLink)
 
-	auth := smtp.PlainAuth("", from, password, smtpHost)
-	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{email}, message)
+	// Créer un client Mailjet avec les clés API
+	mailjetClient := mailjet.NewMailjetClient(os.Getenv("MAILJET_API_KEY_PUBLIC"), os.Getenv("MAILJET_API_KEY_PRIVATE"))
+
+	// Créer les informations du message
+	messagesInfo := []mailjet.InfoMessagesV31{
+		{
+			From: &mailjet.RecipientV31{
+				Email: from,
+				Name:  fromName,
+			},
+			To: &mailjet.RecipientsV31{
+				{
+					Email: email,
+					Name:  "Utilisateur", // Vous pouvez personnaliser le nom si nécessaire
+				},
+			},
+			Subject:  subject,
+			TextPart: textContent,
+			HTMLPart: htmlContent,
+			CustomID: "PasswordReset",
+		},
+	}
+
+	// Envoyer l'e-mail via Mailjet
+	messages := mailjet.MessagesV31{Info: messagesInfo}
+	res, err := mailjetClient.SendMailV31(&messages)
 	if err != nil {
-		fmt.Println("Erreur lors de l'envoi de l'email :", err)
+		log.Fatal("Erreur lors de l'envoi de l'e-mail :", err)
+	} else {
+		fmt.Printf("E-mail de réinitialisation envoyé avec succès à %s. Réponse : %+v\n", email, res)
 	}
 }
 
