@@ -83,7 +83,7 @@ func sendResetEmail(email, token string) {
 	baseURL := os.Getenv("BASE_URL")           // URL de base configurable via .env
 
 	// Construire le lien de réinitialisation de mot de passe
-	resetLink := fmt.Sprintf("%s/reset-password?token=%s", baseURL, token)
+	resetLink := fmt.Sprintf("https://%s/reset-password?token=%s", baseURL, token)
 	subject := "Réinitialisation de mot de passe"
 	htmlContent := fmt.Sprintf("<h3>Réinitialisation de votre mot de passe</h3><p>Cliquez sur ce lien pour réinitialiser votre mot de passe : <a href='%s'>Réinitialiser</a></p>", resetLink)
 	textContent := fmt.Sprintf("Ceci est un lien pour réinitialiser votre mot de passe : %s", resetLink)
