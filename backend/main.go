@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/dratsisama/Kermisys/backend/config"
 	"github.com/dratsisama/Kermisys/backend/database"
@@ -24,7 +26,6 @@ import (
 // @license.name    MIT License
 // @license.url     https://opensource.org/licenses/MIT
 
-// @host            localhost:8080
 // @BasePath        /
 
 // @securityDefinitions.apikey Bearer
@@ -45,14 +46,18 @@ func main() {
 	// Insérer les données par défaut
 	database.SeedDatabase()
 
-	// // Initialiser Gin
-	// router := gin.Default()
-
-	// Configurer les autres routes de l'application
+	// Initialiser Gin
 	router := routes.InitRoutes()
 
-	// Configurer la documentation Swagger
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL("http://localhost:8080/swagger/doc.json"), ginSwagger.PersistAuthorization(true)))
+	// Récupérer BASE_URL du fichier .env
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		log.Fatal("BASE_URL n'est pas défini dans le fichier .env")
+	}
+
+	// Configurer la documentation Swagger avec le BASE_URL
+	swaggerURL := fmt.Sprintf("%s/swagger/doc.json", baseURL)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL(swaggerURL), ginSwagger.PersistAuthorization(true)))
 
 	// Route de bienvenue à la racine de l'API
 	router.GET("/", func(c *gin.Context) {
@@ -61,7 +66,6 @@ func main() {
 		})
 	})
 
-	// Démarrer le serveur sur le port 8080
-	log.Fatal(router.Run(":8080"))
-	log.Fatal(router.Run("0.0.0.0:8080"))
+	// Démarrer le serveur sur le port récupéré du BASE_URL
+	log.Fatal(router.Run(baseURL))
 }
