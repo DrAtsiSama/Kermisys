@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/services/auth_service.dart';
+import '../services/auth_service.dart';
+import 'chat_screen.dart'; // Importation de l'écran de chat
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -21,31 +22,23 @@ class _LoginScreenState extends State<LoginScreen> {
 
     print("token");
     if (token != null) {
-      // Effacer le message d'erreur
       setState(() {
-        _errorMessage = null;
+        _errorMessage = null; // Effacer le message d'erreur
       });
-
-      // Afficher un message de succès avec le token
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Connexion réussie ! Token JWT : $token'),
-          duration: Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'OK',
-            onPressed: () {
-              // Masquer le SnackBar
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        ),
-      );
 
       // Afficher le token dans la console
       print('Token JWT : $token');
 
-      // Rediriger vers une autre page si nécessaire (par exemple, une page d'accueil)
-      // Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      // Navigation vers la page de chat avec les IDs des utilisateurs
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            currentUserId: '12', // Remplace par l'ID de l'utilisateur connecté
+            recipientId: '4',   // Remplace par l'ID du destinataire
+          ),
+        ),
+      );
     } else {
       // Afficher le message d'erreur
       setState(() {
