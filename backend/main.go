@@ -61,13 +61,13 @@ func main() {
 		log.Fatal("SERVER_URL n'est pas défini dans le fichier .env")
 	}
 
-	basePort := os.Getenv("BASE_URL")
+	basePort := os.Getenv("BASE_PORT")
 	if basePort == "" {
 		log.Fatal("BASE_PORT n'est pas défini dans le fichier .env")
 	}
 
 	// Configurer la documentation Swagger avec le BASE_URL
-	swaggerURL := fmt.Sprintf("http://%s:%s/swagger/doc.json", serverURL, basePort)
+	swaggerURL := fmt.Sprintf("http://%s:%s/swagger/doc.json", baseURL, basePort)
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.URL(swaggerURL), ginSwagger.PersistAuthorization(true)))
 
 	// Route de bienvenue à la racine de l'API
@@ -78,7 +78,7 @@ func main() {
 	})
 
 	// Démarrer le serveur sur l'adresse et le port récupérés
-	serverAddress := fmt.Sprintf("%s:%s", baseURL, basePort)
+	serverAddress := fmt.Sprintf("%s:%s", serverURL, basePort)
 	log.Printf("Server running at %s", serverAddress)
 	log.Fatal(router.Run(serverAddress))
 }
