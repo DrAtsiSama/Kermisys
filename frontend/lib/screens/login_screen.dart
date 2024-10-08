@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'chat_screen.dart'; // Importation de l'écran de chat
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,33 +13,21 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   Future<void> _login() async {
-    print('Tentative de connexion...');
     final username = _usernameController.text;
     final password = _passwordController.text;
-    print("password user : " + password + "   " + username);
+
     final token = await _authService.login(username, password);
 
-    print("token");
     if (token != null) {
+      // Effacer le message d'erreur
       setState(() {
-        _errorMessage = null; // Effacer le message d'erreur
+        _errorMessage = null;
       });
 
-      // Afficher le token dans la console
-      print('Token JWT : $token');
-
-      // Navigation vers la page de chat avec les IDs des utilisateurs
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChatScreen(
-            currentUserId: '12', // Remplace par l'ID de l'utilisateur connecté
-            recipientId: '4',   // Remplace par l'ID du destinataire
-          ),
-        ),
-      );
+      // Rediriger vers la page des kermesses
+      Navigator.pushReplacementNamed(context, '/kermesse');
     } else {
-      // Afficher le message d'erreur
+      // Afficher un message d'erreur
       setState(() {
         _errorMessage = "Nom d'utilisateur ou mot de passe incorrect";
       });
