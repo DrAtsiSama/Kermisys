@@ -69,11 +69,19 @@ func DeleteStand(id uint) error {
 	return nil
 }
 
-// GetAllStands récupère tous les stands avec pagination
-func GetAllStands(page, limit int) ([]models.Stand, error) {
+// GetAllStands récupère tous les stands avec pagination, optionnellement filtrés par kermesseID
+func GetAllStands(page, limit, kermesseID int) ([]models.Stand, error) {
 	var stands []models.Stand
 	offset := (page - 1) * limit
-	if err := database.DB.Preload("Kermesse").Preload("Owner").Offset(offset).Limit(limit).Find(&stands).Error; err != nil {
+
+	query := database.DB.Preload("Kermesse").Preload("Owner").Offset(offset).Limit(limit)
+
+	if kermesseID > 0 {
+		// Si kermesseID est fourni, on filtre les stands par cet ID
+		query = query.Where("kermesse_id = ?", kermesseID)
+	}
+
+	if err := query.Find(&stands).Error; err != nil {
 		return nil, err
 	}
 	return stands, nil
@@ -247,4 +255,14 @@ func DoesStandExist(standID uint) bool {
 	var stand models.Stand
 	err := database.DB.First(&stand, standID).Error
 	return err == nil
+}
+
+// Récupérer les stands créés par un utilisateur donné
+func GetStandsByUserID(userID uint) ([]models.Stand, error) {
+	var stands []models.Stand
+	result := database.DB.Where("owner_id = ?", userID).Find(&stands)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return stands, nil
 }

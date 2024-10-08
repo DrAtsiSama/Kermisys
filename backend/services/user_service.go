@@ -249,3 +249,13 @@ func GetPlayerScore(userID, standID uint) (*models.PlayerScore, error) {
 	}
 	return &playerScore, nil
 }
+
+// GetUserByID récupère un utilisateur par son ID
+func GetUserByID(userID uint) (models.User, bool) {
+	var user models.User
+	result := database.DB.Where("id = ?", userID).First(&user)
+	if result.Error != nil {
+		return models.User{}, false
+	}
+	return user, true
+}

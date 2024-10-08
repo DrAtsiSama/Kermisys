@@ -344,3 +344,36 @@ func GetUserTokens(c *gin.Context) {
 	// Utiliser la structure TokenResponse pour envoyer la réponse
 	c.JSON(http.StatusOK, TokenResponse{Tokens: tokens})
 }
+
+// @Summary      Récupérer l'utilisateur actuel
+// @Description  Récupère les informations de l'utilisateur connecté à partir du token JWT
+// @Tags         Utilisateurs
+// @Produce      json
+// @Success      200  {object}  models.UserResponse
+// @Failure      401  {object}  models.ErrorResponse
+// @Router       /user/me [get]
+// @Security Bearer
+func GetCurrentUserHandler(c *gin.Context) {
+    // Récupérer les informations stockées dans le middleware AuthMiddleware
+    userID, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+        return
+    }
+
+    // Appeler le service pour récupérer l'utilisateur en fonction de l'ID
+    user, exists := services.GetUserByID(userID.(uint))
+    if !exists {
+        c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "User not found"})
+        return
+    }
+
+    // Retourner les informations de l'utilisateur
+    c.JSON(http.StatusOK, models.UserResponse{
+        ID:       user.ID,
+        Username: user.Username,
+        Email:    user.Email,
+        Role:     user.Role,
+    })
+}
+

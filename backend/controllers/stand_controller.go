@@ -54,14 +54,14 @@ func CreateStand(c *gin.Context) {
 // @Description  Récupère les détails d'un stand par son ID
 // @Tags         Stands
 // @Produce      json
-// @Param        id   path      int  true  "ID du stand"
+// @Param        stand_id   path      int  true  "ID du stand"
 // @Success      200  {object}  models.Stand
 // @Failure      400  {object}  models.ErrorResponse
 // @Failure      404  {object}  models.ErrorResponse
-// @Router       /stands/{id} [get]
+// @Router       /stands/{stand_id} [get]
 // @Security Bearer
 func GetStand(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("stand_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
 		return
@@ -81,15 +81,15 @@ func GetStand(c *gin.Context) {
 // @Tags         Stands
 // @Accept       json
 // @Produce      json
-// @Param        id     path      int         true  "ID du stand"
+// @Param        stand_id     path      int         true  "ID du stand"
 // @Param        stand  body      models.Stand  true  "Détails du stand"
 // @Success      200    {object}  models.Stand
 // @Failure      400    {object}  models.ErrorResponse
 // @Failure      404    {object}  models.ErrorResponse
-// @Router       /stands/{id} [put]
+// @Router       /stands/{stand_id} [put]
 // @Security Bearer
 func UpdateStand(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("stand_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
 		return
@@ -115,13 +115,13 @@ func UpdateStand(c *gin.Context) {
 // @Summary      Supprimer un stand
 // @Description  Supprime un stand par son ID
 // @Tags         Stands
-// @Param        id   path      int  true  "ID du stand"
+// @Param        stand_id   path      int  true  "ID du stand"
 // @Success      204  {string}  string  "Stand deleted"
 // @Failure      400  {object}  models.ErrorResponse
-// @Router       /stands/{id} [delete]
+// @Router       /stands/{stand_id} [delete]
 // @Security Bearer
 func DeleteStand(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("stand_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
 		return
@@ -140,12 +140,13 @@ func DeleteStand(c *gin.Context) {
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// @Summary      Récupérer tous les stands avec pagination
-// @Description  Récupère la liste de tous les stands avec pagination
+// @Summary      Récupérer les stands avec pagination et optionnellement par kermesse
+// @Description  Récupère la liste de tous les stands avec pagination, peut être filtré par kermesseID
 // @Tags         Stands
 // @Produce      json
-// @Param        page   query     int  false  "Numéro de la page"       default(1)
-// @Param        limit  query     int  false  "Nombre d'éléments par page" default(10)
+// @Param        page        query     int  false  "Numéro de la page"       default(1)
+// @Param        limit       query     int  false  "Nombre d'éléments par page" default(10)
+// @Param        kermesse_id query     int  false  "ID de la kermesse pour filtrer"
 // @Success      200  {array}    models.Stand
 // @Failure      500  {object}   models.ErrorResponse
 // @Router       /stands [get]
@@ -153,8 +154,9 @@ func DeleteStand(c *gin.Context) {
 func GetAllStands(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	kermesseID, _ := strconv.Atoi(c.DefaultQuery("kermesse_id", "0")) // 0 si non fourni
 
-	stands, err := services.GetAllStands(page, limit)
+	stands, err := services.GetAllStands(page, limit, kermesseID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -166,16 +168,16 @@ func GetAllStands(c *gin.Context) {
 // @Summary      Interagir avec un stand
 // @Description  Permet à un utilisateur d'interagir avec un stand spécifique
 // @Tags         Stands
-// @Param        id       path      int    true  "ID du stand"
+// @Param        stand_id       path      int    true  "ID du stand"
 // @Param        action   query     string true  "Action effectuée (ex: 'buy_item', 'play_game')"
 // @Param        quantity query     int    false "Quantité à affecter (par défaut 1)"
 // @Success      200  {string}  string  "Interaction réussie"
 // @Failure      400  {object}  models.ErrorResponse
-// @Router       /stands/{id}/interact [post]
+// @Router       /stands/{stand_id}/interact [post]
 // @Security Bearer
 func InteractWithStand(c *gin.Context) {
 	// Récupérer l'ID du stand
-	standID, err := strconv.Atoi(c.Param("id"))
+	standID, err := strconv.Atoi(c.Param("stand_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid stand ID"})
 		return
@@ -238,4 +240,29 @@ func GetPlayerScore(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, playerScore)
+}
+
+// @Summary      Récupérer les stands créés par l'utilisateur
+// @Description  Récupère tous les stands créés par l'utilisateur connecté à partir du token JWT
+// @Tags         Stands
+// @Produce      json
+// @Success      200  {array}   models.Stand
+// @Failure      401  {object}  models.ErrorResponse
+// @Router       /user/stands [get]
+// @Security Bearer
+func GetUserStandsHandler(c *gin.Context) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized"})
+		return
+	}
+
+	// Appeler le service pour récupérer les stands par userID
+	stands, err := services.GetStandsByUserID(userID.(uint))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Erreur lors de la récupération des stands"})
+		return
+	}
+
+	c.JSON(http.StatusOK, stands)
 }

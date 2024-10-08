@@ -18,6 +18,7 @@ func initializeKermesseRoutes(r *gin.RouterGroup) {
 		kermesseRoutes.POST("/:kermesse_id/stands/:stand_id", controllers.AddStandToKermesse)
 		kermesseRoutes.POST("/leave/:kermesse_id", controllers.LeaveKermesseHandler)
 		kermesseRoutes.POST("/join/:kermesse_id", controllers.JoinKermesseHandler)
+		kermesseRoutes.GET("/:kermesse_id/participants", controllers.GetKermesseParticipants)
 
 		// Routes pour les scores avec des chemins plus explicites
 		kermesseRoutes.POST("/:kermesse_id/stands/:stand_id/player-scores/:user_id", middlewares.RoleMiddleware("admin", "organisateur"), controllers.AddOrUpdatePlayerScore)

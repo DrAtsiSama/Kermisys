@@ -11,6 +11,9 @@ func initializeUserRoutes(r *gin.RouterGroup) {
 	{
 		// General user routes
 		userRoutes.GET("/:username", middlewares.RoleMiddleware("admin", "organisateur"), controllers.GetUserHandler)
+		userRoutes.GET("/me", controllers.GetCurrentUserHandler)
+		userRoutes.GET("/stands", controllers.GetUserStandsHandler)
+
 		userRoutes.POST("/", middlewares.RoleMiddleware("admin", "organisateur"), controllers.CreateUserHandler)
 
 		userRoutes.POST("/parent-requests", controllers.CreateParentChildRequest)           // Créer une demande parent-enfant

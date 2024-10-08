@@ -62,7 +62,7 @@ func CreateKermesse(c *gin.Context) {
 }
 
 // @Summary      Récupérer toutes les kermesses
-// @Description  Récupère la liste de toutes les kermesses avec pagination et filtres
+// @Description  Récupère la liste de toutes les kermesses avec pagination et filtres, ou les kermesses où un utilisateur est inscrit si userId est fourni
 // @Tags         Kermesses
 // @Produce      json
 // @Param        page     query     int     false  "Numéro de la page"
@@ -70,6 +70,7 @@ func CreateKermesse(c *gin.Context) {
 // @Param        name     query     string  false  "Filtrer par nom de la kermesse"
 // @Param        location query     string  false  "Filtrer par localisation de la kermesse"
 // @Param        startDate query    string  false  "Filtrer par date de début (format: YYYY-MM-DD)"
+// @Param        userId   query     int     false  "ID de l'utilisateur pour filtrer les kermesses auxquelles il est inscrit"
 // @Success      200      {array}   models.Kermesse
 // @Failure      500      {object}  models.ErrorResponse
 // @Router       /kermesses [get]
@@ -82,10 +83,12 @@ func GetAllKermesses(c *gin.Context) {
 	name := c.Query("name")
 	location := c.Query("location")
 	startDate := c.Query("startDate")
+	userId := c.Query("userId") // Récupère le paramètre userId (facultatif)
 
 	var kermesses []models.Kermesse
 	query := database.DB.Offset(offset).Limit(limit)
 
+	// Filtres optionnels pour le nom, la localisation et la date de début
 	if name != "" {
 		query = query.Where("name ILIKE ?", "%"+name+"%")
 	}
@@ -99,6 +102,14 @@ func GetAllKermesses(c *gin.Context) {
 		}
 	}
 
+	// Si un userId est fourni, filtrer les kermesses auxquelles l'utilisateur est inscrit
+	if userId != "" {
+		// Sous-requête pour filtrer les kermesses en fonction de la table d'inscriptions
+		query = query.Joins("JOIN kermesse_participants ON kermesse_participants.kermesse_id = kermesses.id").
+			Where("kermesse_participants.user_id = ?", userId)
+	}
+
+	// Exécuter la requête
 	if err := query.Find(&kermesses).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to fetch kermesses"})
 		return
@@ -388,4 +399,39 @@ func RemovePlayerScore(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Score supprimé avec succès"})
+}
+
+// @Summary      Récupérer les participants d'une kermesse
+// @Description  Récupère la liste de tous les utilisateurs inscrits à une kermesse spécifique
+// @Tags         Kermesses
+// @Produce      json
+// @Param        kermesse_id   path      int     true  "ID de la kermesse"
+// @Success      200  {array}   models.UserResponse
+// @Failure      404  {object}  models.ErrorResponse
+// @Router       /kermesses/{kermesse_id}/participants [get]
+// @Security Bearer
+func GetKermesseParticipants(c *gin.Context) {
+	kermesseID := c.Param("kermesse_id")
+
+	var kermesse models.Kermesse
+	if err := database.DB.Preload("Participants").First(&kermesse, kermesseID).Error; err != nil {
+		c.JSON(http.StatusNotFound, models.ErrorResponse{Error: "Kermesse not found or no participants"})
+		return
+	}
+
+	// Extraire les participants de la kermesse
+	participants := kermesse.Participants
+
+	// Formater la réponse
+	var response []models.UserResponse
+	for _, user := range participants {
+		response = append(response, models.UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+			Role:     user.Role,
+		})
+	}
+
+	c.JSON(http.StatusOK, response)
 }
