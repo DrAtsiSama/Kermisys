@@ -71,12 +71,11 @@ func ProcessPayment(c *gin.Context) {
 	}
 
 	// Crée un PaymentIntent Stripe
-	intent, err := services.CreatePaymentIntent(userID, paymentData.KermesseID, paymentData.Amount, paymentData.Currency)
+	intent, err := services.CreatePaymentIntent(stand.ID, userID, paymentData.KermesseID, paymentData.Amount, paymentData.Currency)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Failed to create payment intent"})
 		return
 	}
-
 	// Créer une transaction avec un stand valide
 	transaction := models.Transaction{
 		StandID:       stand.ID,

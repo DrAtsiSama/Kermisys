@@ -31,7 +31,7 @@ func ProcessPayment(amount int64, currency, description, source string) (string,
 }
 
 // CreatePaymentIntent crée un PaymentIntent Stripe et sauvegarde la transaction
-func CreatePaymentIntent(userID, kermesseID uint, amount int64, currency string) (*stripe.PaymentIntent, error) {
+func CreatePaymentIntent(standID, userID, kermesseID uint, amount int64, currency string) (*stripe.PaymentIntent, error) {
 	params := &stripe.PaymentIntentParams{
 		Amount:   stripe.Int64(amount),
 		Currency: stripe.String(currency),
@@ -42,6 +42,7 @@ func CreatePaymentIntent(userID, kermesseID uint, amount int64, currency string)
 	}
 
 	transaction := models.Transaction{
+		StandID:       standID,
 		UserID:        userID,
 		KermesseID:    kermesseID,
 		Amount:        amount,

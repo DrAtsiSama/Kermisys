@@ -62,7 +62,7 @@ func ChatHandler(c *gin.Context) {
 	log.Printf("Connexion WebSocket établie par l'utilisateur : %s (ID: %s, Rôle: %s)", username, userID, userRole)
 
 	// Vérifier si l'utilisateur est autorisé
-	if userRole != "admin" && userRole != "stand_manager" {
+	if userRole != "admin" && userRole != "gerant_kermesse" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, models.ErrorResponse{Error: "Unauthorized: Access restricted to admins and stand managers"})
 		return
 	}
