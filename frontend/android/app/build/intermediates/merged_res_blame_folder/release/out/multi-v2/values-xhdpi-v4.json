@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.frontend.app-mergeReleaseResources-84:/values-xhdpi-v4/values-xhdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/res/values-xhdpi-v4/values-xhdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "56",
+                        "endOffsets": "107"
+                    }
+                }
+            ]
+        }
+    ]
+}

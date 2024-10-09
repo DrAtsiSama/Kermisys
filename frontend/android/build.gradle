@@ -1,16 +1,28 @@
+// Fichier : android/build.gradle
+
+// Fichier de configuration au niveau du projet racine
+buildscript {
+    ext {
+        // Version de Kotlin utilisée
+        kotlin_version = '1.8.0' // Assurez-vous que cette version correspond à celle utilisée dans votre projet
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Plugin Gradle pour Android
+        classpath 'com.android.tools.build:gradle:7.4.2' // Mettez à jour si nécessaire
+        // Plugin Gradle pour Kotlin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
-}
-
-rootProject.buildDir = "../build"
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {

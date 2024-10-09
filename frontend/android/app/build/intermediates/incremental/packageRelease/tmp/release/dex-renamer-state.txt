@@ -1,0 +1,7 @@
+#Wed Oct 09 06:21:33 CEST 2024
+base.0=/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+base.1=/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/build/intermediates/dex/release/minifyReleaseWithR8/classes2.dex
+path.0=classes.dex
+path.1=classes2.dex
+renamed.0=classes.dex
+renamed.1=classes2.dex

@@ -1,13 +1,22 @@
-import 'package:Kermisys/screens/kermesse_detail_screen.dart';
-import 'package:Kermisys/screens/stand_list_screen.dart';
-import 'package:Kermisys/screens/token_purchase_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'models/kermesse.dart';
 import 'screens/login_screen.dart';
+import 'screens/register_screen.dart'; // Import du RegisterScreen
+import 'screens/forgot_password_screen.dart'; // Import du ForgotPasswordScreen
 import 'screens/kermesse_list_screen.dart';
+import 'screens/kermesse_detail_screen.dart';
+import 'screens/stand_list_screen.dart';
+import 'screens/token_purchase_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/child_management_screen.dart'; // Import de la nouvelle page
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialisez Stripe avec votre clé publique
+  Stripe.publishableKey = 'votre_clé_publique'; // Remplacez par votre clé publique Stripe
+
   runApp(MyApp());
 }
 
@@ -20,10 +29,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/login',  // Assure que l'écran de connexion est le premier
+      initialRoute: '/login', // L'écran de connexion est le premier
       routes: {
         '/login': (context) => LoginScreen(),
-        '/kermesse': (context) => KermesseApp(), // Inclut le Drawer et la liste des kermesses
+        '/register': (context) => RegisterScreen(), // Nouvelle route pour l'inscription
+        '/forgot_password': (context) => ForgotPasswordScreen(), // Nouvelle route pour mot de passe oublié
+        '/kermesse': (context) => KermesseApp(),
         '/profile': (context) => ProfileScreen(),
         '/kermesse_detail': (context) => KermesseDetailScreen(
           kermesse: ModalRoute.of(context)!.settings.arguments as Kermesse,
@@ -32,6 +43,7 @@ class MyApp extends StatelessWidget {
           kermesseId: ModalRoute.of(context)!.settings.arguments as int,
         ),
         '/purchase_tokens': (context) => TokenPurchaseScreen(),
+        '/child_management': (context) => ChildManagementScreen(), // Nouvelle route
       },
     );
   }
@@ -41,7 +53,9 @@ class KermesseApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Kermesse App')),
+      appBar: AppBar(
+        title: Text('Kermesse App'),
+      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -73,35 +87,24 @@ class KermesseApp extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Déconnexion'),
+              leading: Icon(Icons.child_care),
+              title: Text('Gestion des Enfants'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-            ),
-            Divider(), // Séparation pour organiser les sections
-            ListTile(
-              leading: Icon(Icons.details),
-              title: Text('Détails Kermesse'),
-              onTap: () {
-                // Navigue vers l'écran des détails d'une kermesse, un exemple fictif d'ID
-                Navigator.pushNamed(context, '/kermesse_detail', arguments: Kermesse(id: 1, name: "Kermesse", location: "Paris", startDate: "2024-01-01", endDate: "2024-01-02", description: ''));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.store),
-              title: Text('Liste des Stands'),
-              onTap: () {
-                // Navigue vers l'écran de la liste des stands, un exemple fictif d'ID de kermesse
-                Navigator.pushNamed(context, '/stand_list', arguments: 1);
+                Navigator.pushNamed(context, '/child_management');
               },
             ),
             ListTile(
               leading: Icon(Icons.monetization_on),
               title: Text('Acheter des Jetons'),
               onTap: () {
-                // Navigue vers l'écran d'achat de jetons
                 Navigator.pushNamed(context, '/purchase_tokens');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Déconnexion'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/login');
               },
             ),
           ],

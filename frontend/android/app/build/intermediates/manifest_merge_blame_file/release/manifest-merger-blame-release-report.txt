@@ -1,0 +1,501 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.example.frontend"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+8-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml
+9        android:targetSdkVersion="34" />
+9-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml
+10    <!--
+11         Required to query activities that can process text, see:
+12         https://developer.android.com/training/package-visibility and
+13         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+14
+15         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin.
+16    -->
+17    <queries>
+17-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:40:5-45:15
+18        <intent>
+18-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:41:9-44:18
+19            <action android:name="android.intent.action.PROCESS_TEXT" />
+19-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:42:13-72
+19-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:42:21-70
+20
+21            <data android:mimeType="text/plain" />
+21-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:13-50
+21-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:19-48
+22        </intent>
+23        <!-- Added to check the default browser that will host the AuthFlow. -->
+24        <intent>
+24-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:15:9-19:18
+25            <action android:name="android.intent.action.VIEW" />
+25-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:16:13-65
+25-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:16:21-62
+26
+27            <data android:scheme="http" />
+27-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:13-50
+28        </intent> <!-- Added to check if Chrome is installed for browser-based payment authentication (e.g. 3DS1). -->
+29        <package android:name="com.android.chrome" /> <!-- Needs to be explicitly declared on Android R+ -->
+29-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:13:9-54
+29-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:13:18-51
+30        <package android:name="com.google.android.apps.maps" />
+30-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:33:9-64
+30-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:33:18-61
+31    </queries>
+32
+33    <uses-permission android:name="android.permission.INTERNET" /> <!-- Include required permissions for Google Maps API to run. -->
+33-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:9:5-67
+33-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:9:22-64
+34    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+34-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:23:5-79
+34-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:23:22-76
+35
+36    <uses-feature
+36-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:26:5-28:35
+37        android:glEsVersion="0x00020000"
+37-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:27:9-41
+38        android:required="true" />
+38-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:28:9-32
+39
+40    <permission
+40-->[androidx.core:core:1.9.0] /home/dratsisama/.gradle/caches/transforms-3/cd029caa73742c9274e432966ee47c8f/transformed/core-1.9.0/AndroidManifest.xml:22:5-24:47
+41        android:name="com.example.frontend.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+41-->[androidx.core:core:1.9.0] /home/dratsisama/.gradle/caches/transforms-3/cd029caa73742c9274e432966ee47c8f/transformed/core-1.9.0/AndroidManifest.xml:23:9-81
+42        android:protectionLevel="signature" />
+42-->[androidx.core:core:1.9.0] /home/dratsisama/.gradle/caches/transforms-3/cd029caa73742c9274e432966ee47c8f/transformed/core-1.9.0/AndroidManifest.xml:24:9-44
+43
+44    <uses-permission android:name="com.example.frontend.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+44-->[androidx.core:core:1.9.0] /home/dratsisama/.gradle/caches/transforms-3/cd029caa73742c9274e432966ee47c8f/transformed/core-1.9.0/AndroidManifest.xml:26:5-97
+44-->[androidx.core:core:1.9.0] /home/dratsisama/.gradle/caches/transforms-3/cd029caa73742c9274e432966ee47c8f/transformed/core-1.9.0/AndroidManifest.xml:26:22-94
+45
+46    <application
+47        android:name="android.app.Application"
+47-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:4:9-42
+48        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+48-->[androidx.core:core:1.9.0] /home/dratsisama/.gradle/caches/transforms-3/cd029caa73742c9274e432966ee47c8f/transformed/core-1.9.0/AndroidManifest.xml:28:18-86
+49        android:icon="@mipmap/ic_launcher"
+49-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:5:9-43
+50        android:label="Kermisys" >
+50-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:3:9-33
+51        <activity
+51-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:6:9-28:20
+52            android:name="com.example.frontend.MainActivity"
+52-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:7:13-41
+53            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+53-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:13:13-163
+54            android:enableOnBackInvokedCallback="true"
+54-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:12:13-55
+55            android:exported="true"
+55-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:8:13-36
+56            android:hardwareAccelerated="true"
+56-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:14:13-47
+57            android:launchMode="singleTop"
+57-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:9:13-43
+58            android:taskAffinity=""
+58-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:10:13-36
+59            android:theme="@style/LaunchTheme"
+59-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:11:13-47
+60            android:windowSoftInputMode="adjustResize" >
+60-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:15:13-55
+61
+62            <!--
+63                 Specifies an Android theme to apply to this Activity as soon as
+64                 the Android process has started. This theme is visible to the user
+65                 while the Flutter UI initializes. After that, this theme continues
+66                 to determine the Window background behind the Flutter UI.
+67            -->
+68            <meta-data
+68-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:20:13-23:17
+69                android:name="io.flutter.embedding.android.NormalTheme"
+69-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:21:15-70
+70                android:resource="@style/NormalTheme" />
+70-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:22:15-52
+71
+72            <intent-filter>
+72-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:24:13-27:29
+73                <action android:name="android.intent.action.MAIN" />
+73-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:25:17-68
+73-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:25:25-66
+74
+75                <category android:name="android.intent.category.LAUNCHER" />
+75-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:26:17-76
+75-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:26:27-74
+76            </intent-filter>
+77        </activity>
+78        <!--
+79             Don't delete the meta-data below.
+80             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
+81        -->
+82        <meta-data
+82-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:31:9-33:33
+83            android:name="flutterEmbedding"
+83-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:32:13-44
+84            android:value="2" />
+84-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:33:13-30
+85
+86        <activity
+86-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:10:9-13:69
+87            android:name="com.stripe.android.paymentsheet.PaymentSheetActivity"
+87-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:11:13-80
+88            android:exported="false"
+88-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:12:13-37
+89            android:theme="@style/StripePaymentSheetDefaultTheme" />
+89-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:13:13-66
+90        <activity
+90-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:14:9-17:69
+91            android:name="com.stripe.android.paymentsheet.PaymentOptionsActivity"
+91-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:15:13-82
+92            android:exported="false"
+92-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:16:13-37
+93            android:theme="@style/StripePaymentSheetDefaultTheme" />
+93-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:17:13-66
+94        <activity
+94-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:18:9-21:69
+95            android:name="com.stripe.android.paymentsheet.addresselement.AddressElementActivity"
+95-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:19:13-97
+96            android:exported="false"
+96-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:20:13-37
+97            android:theme="@style/StripePaymentSheetDefaultTheme" />
+97-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:21:13-66
+98        <activity
+98-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:22:9-25:69
+99            android:name="com.stripe.android.paymentsheet.paymentdatacollection.polling.PollingActivity"
+99-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:23:13-105
+100            android:exported="false"
+100-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:24:13-37
+101            android:theme="@style/StripePaymentSheetDefaultTheme" />
+101-->[com.stripe:paymentsheet:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/9fbd4ea1ceecbc936678f103882ad62c/transformed/jetified-paymentsheet-20.16.2/AndroidManifest.xml:25:13-66
+102        <activity
+102-->[com.stripe:link:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/1ad7d0d759a18e993a1b958396d0b2df/transformed/jetified-link-20.16.2/AndroidManifest.xml:10:9-15:58
+103            android:name="com.stripe.android.link.LinkActivity"
+103-->[com.stripe:link:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/1ad7d0d759a18e993a1b958396d0b2df/transformed/jetified-link-20.16.2/AndroidManifest.xml:11:13-64
+104            android:exported="false"
+104-->[com.stripe:link:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/1ad7d0d759a18e993a1b958396d0b2df/transformed/jetified-link-20.16.2/AndroidManifest.xml:12:13-37
+105            android:label="@string/link"
+105-->[com.stripe:link:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/1ad7d0d759a18e993a1b958396d0b2df/transformed/jetified-link-20.16.2/AndroidManifest.xml:13:13-41
+106            android:theme="@style/LinkBaseTheme"
+106-->[com.stripe:link:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/1ad7d0d759a18e993a1b958396d0b2df/transformed/jetified-link-20.16.2/AndroidManifest.xml:14:13-49
+107            android:windowSoftInputMode="adjustResize" />
+107-->[com.stripe:link:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/1ad7d0d759a18e993a1b958396d0b2df/transformed/jetified-link-20.16.2/AndroidManifest.xml:15:13-55
+108        <activity
+108-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:23:9-48:20
+109            android:name="com.stripe.android.financialconnections.FinancialConnectionsSheetRedirectActivity"
+109-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:24:13-109
+110            android:exported="true" >
+110-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:25:13-36
+111            <intent-filter>
+111-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:26:13-47:29
+112                <action android:name="android.intent.action.VIEW" />
+112-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:16:13-65
+112-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:16:21-62
+113
+114                <category android:name="android.intent.category.DEFAULT" />
+114-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:29:17-76
+114-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:29:27-73
+115                <category android:name="android.intent.category.BROWSABLE" />
+115-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:30:17-78
+115-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:30:27-75
+116
+117                <!-- Accepts success and cancel URIs that begin with "stripe-auth://link-accounts” -->
+118                <data
+118-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:13-50
+119                    android:host="link-accounts"
+120                    android:path="/com.example.frontend/success"
+121                    android:scheme="stripe-auth" />
+122                <data
+122-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:13-50
+123                    android:host="link-accounts"
+124                    android:path="/com.example.frontend/cancel"
+125                    android:scheme="stripe-auth" />
+126
+127                <!-- Accepts success/cancel/fail URIs that begin with "stripe-auth://auth-redirect” -->
+128                <data
+128-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:13-50
+129                    android:host="auth-redirect"
+130                    android:pathPrefix="/com.example.frontend"
+131                    android:scheme="stripe" />
+132            </intent-filter>
+133        </activity>
+134        <activity
+134-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:49:9-52:57
+135            android:name="com.stripe.android.financialconnections.FinancialConnectionsSheetActivity"
+135-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:50:13-101
+136            android:exported="false"
+136-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:51:13-37
+137            android:theme="@style/StripeDefaultTheme" />
+137-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:52:13-54
+138        <activity
+138-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:53:9-57:58
+139            android:name="com.stripe.android.financialconnections.ui.FinancialConnectionsSheetNativeActivity"
+139-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:54:13-110
+140            android:exported="false"
+140-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:55:13-37
+141            android:theme="@style/StripeDefaultTheme"
+141-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:56:13-54
+142            android:windowSoftInputMode="adjustResize" />
+142-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:57:13-55
+143
+144        <provider
+144-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:59:9-63:43
+145            android:name="com.stripe.android.financialconnections.appinitializer.FinancialConnectionsInitializer"
+145-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:60:13-114
+146            android:authorities="com.example.frontend.financialconnections-init"
+146-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:61:13-77
+147            android:exported="false"
+147-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:62:13-37
+148            android:multiprocess="true" />
+148-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:63:13-40
+149
+150        <activity
+150-->[com.stripe:payments-ui-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/cc778463d879e2b81eb5519b610549ac/transformed/jetified-payments-ui-core-20.16.2/AndroidManifest.xml:10:9-13:69
+151            android:name="com.stripe.android.ui.core.cardscan.CardScanActivity"
+151-->[com.stripe:payments-ui-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/cc778463d879e2b81eb5519b610549ac/transformed/jetified-payments-ui-core-20.16.2/AndroidManifest.xml:11:13-80
+152            android:exported="false"
+152-->[com.stripe:payments-ui-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/cc778463d879e2b81eb5519b610549ac/transformed/jetified-payments-ui-core-20.16.2/AndroidManifest.xml:12:13-37
+153            android:theme="@style/StripePaymentSheetDefaultTheme" />
+153-->[com.stripe:payments-ui-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/cc778463d879e2b81eb5519b610549ac/transformed/jetified-payments-ui-core-20.16.2/AndroidManifest.xml:13:13-66
+154        <activity
+154-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:17:9-20:57
+155            android:name="com.stripe.android.view.AddPaymentMethodActivity"
+155-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:18:13-76
+156            android:exported="false"
+156-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:19:13-37
+157            android:theme="@style/StripeDefaultTheme" />
+157-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:20:13-54
+158        <activity
+158-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:21:9-24:57
+159            android:name="com.stripe.android.view.PaymentMethodsActivity"
+159-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:22:13-74
+160            android:exported="false"
+160-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:23:13-37
+161            android:theme="@style/StripeDefaultTheme" />
+161-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:24:13-54
+162        <activity
+162-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:25:9-28:57
+163            android:name="com.stripe.android.view.PaymentFlowActivity"
+163-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:26:13-71
+164            android:exported="false"
+164-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:27:13-37
+165            android:theme="@style/StripeDefaultTheme" />
+165-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:28:13-54
+166        <activity
+166-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:29:9-33:58
+167            android:name="com.stripe.android.view.PaymentAuthWebViewActivity"
+167-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:30:13-78
+168            android:exported="false"
+168-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:31:13-37
+169            android:theme="@style/StripeDefaultTheme"
+169-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:32:13-54
+170            android:windowSoftInputMode="adjustResize" />
+170-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:33:13-55
+171        <activity
+171-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:34:9-37:61
+172            android:name="com.stripe.android.view.PaymentRelayActivity"
+172-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:35:13-72
+173            android:exported="false"
+173-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:36:13-37
+174            android:theme="@style/StripeTransparentTheme" />
+174-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:37:13-58
+175        <!--
+176        Set android:launchMode="singleTop" so that the StripeBrowserLauncherActivity instance that
+177        launched the browser Activity will also handle the return URL deep link.
+178        -->
+179        <activity
+179-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:43:9-47:61
+180            android:name="com.stripe.android.payments.StripeBrowserLauncherActivity"
+180-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:44:13-85
+181            android:exported="false"
+181-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:45:13-37
+182            android:launchMode="singleTask"
+182-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:46:13-44
+183            android:theme="@style/StripeTransparentTheme" />
+183-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:47:13-58
+184        <activity
+184-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:48:9-65:20
+185            android:name="com.stripe.android.payments.StripeBrowserProxyReturnActivity"
+185-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:49:13-88
+186            android:exported="true"
+186-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:50:13-36
+187            android:launchMode="singleTask"
+187-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:51:13-44
+188            android:theme="@style/StripeTransparentTheme" >
+188-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:52:13-58
+189            <intent-filter>
+189-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:53:13-64:29
+190                <action android:name="android.intent.action.VIEW" />
+190-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:16:13-65
+190-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:16:21-62
+191
+192                <category android:name="android.intent.category.DEFAULT" />
+192-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:29:17-76
+192-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:29:27-73
+193                <category android:name="android.intent.category.BROWSABLE" />
+193-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:30:17-78
+193-->[com.stripe:financial-connections:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/87b4299e6111b1475f275feb93cd7f6c/transformed/jetified-financial-connections-20.16.2/AndroidManifest.xml:30:27-75
+194
+195                <!-- Must match `DefaultReturnUrl#value`. -->
+196                <data
+196-->/home/dratsisama/Documents/ESGI/ESGI-5/Kermisys/frontend/android/app/src/main/AndroidManifest.xml:43:13-50
+197                    android:host="payment_return_url"
+198                    android:path="/com.example.frontend"
+199                    android:scheme="stripesdk" />
+200            </intent-filter>
+201        </activity>
+202        <activity
+202-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:66:9-69:57
+203            android:name="com.stripe.android.payments.core.authentication.threeds2.Stripe3ds2TransactionActivity"
+203-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:67:13-114
+204            android:exported="false"
+204-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:68:13-37
+205            android:theme="@style/StripeDefaultTheme" />
+205-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:69:13-54
+206        <activity
+206-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:70:9-73:66
+207            android:name="com.stripe.android.googlepaylauncher.StripeGooglePayActivity"
+207-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:71:13-88
+208            android:exported="false"
+208-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:72:13-37
+209            android:theme="@style/StripeGooglePayDefaultTheme" />
+209-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:73:13-63
+210        <activity
+210-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:74:9-77:66
+211            android:name="com.stripe.android.googlepaylauncher.GooglePayLauncherActivity"
+211-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:75:13-90
+212            android:exported="false"
+212-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:76:13-37
+213            android:theme="@style/StripeGooglePayDefaultTheme" />
+213-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:77:13-63
+214        <activity
+214-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:78:9-81:66
+215            android:name="com.stripe.android.googlepaylauncher.GooglePayPaymentMethodLauncherActivity"
+215-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:79:13-103
+216            android:exported="false"
+216-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:80:13-37
+217            android:theme="@style/StripeGooglePayDefaultTheme" />
+217-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:81:13-63
+218        <activity
+218-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:82:9-85:62
+219            android:name="com.stripe.android.payments.paymentlauncher.PaymentLauncherConfirmationActivity"
+219-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:83:13-107
+220            android:exported="false"
+220-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:84:13-37
+221            android:theme="@style/PayLauncherDefaultTheme" />
+221-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:85:13-59
+222        <activity
+222-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:86:9-89:61
+223            android:name="com.stripe.android.payments.bankaccount.ui.CollectBankAccountActivity"
+223-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:87:13-97
+224            android:exported="false"
+224-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:88:13-37
+225            android:theme="@style/StripeTransparentTheme" />
+225-->[com.stripe:payments-core:20.16.2] /home/dratsisama/.gradle/caches/transforms-3/466cdafd59f4540376086cf98258ae76/transformed/jetified-payments-core-20.16.2/AndroidManifest.xml:89:13-58
+226        <activity
+226-->[com.stripe:stripe-3ds2-android:6.1.5] /home/dratsisama/.gradle/caches/transforms-3/3187301198c00ab4fa5be0a28d89cd5f/transformed/jetified-stripe-3ds2-android-6.1.5/AndroidManifest.xml:10:9-13:54
+227            android:name="com.stripe.android.stripe3ds2.views.ChallengeActivity"
+227-->[com.stripe:stripe-3ds2-android:6.1.5] /home/dratsisama/.gradle/caches/transforms-3/3187301198c00ab4fa5be0a28d89cd5f/transformed/jetified-stripe-3ds2-android-6.1.5/AndroidManifest.xml:11:13-81
+228            android:exported="false"
+228-->[com.stripe:stripe-3ds2-android:6.1.5] /home/dratsisama/.gradle/caches/transforms-3/3187301198c00ab4fa5be0a28d89cd5f/transformed/jetified-stripe-3ds2-android-6.1.5/AndroidManifest.xml:12:13-37
+229            android:theme="@style/Stripe3DS2Theme" /> <!-- Needs to be explicitly declared on P+ -->
+229-->[com.stripe:stripe-3ds2-android:6.1.5] /home/dratsisama/.gradle/caches/transforms-3/3187301198c00ab4fa5be0a28d89cd5f/transformed/jetified-stripe-3ds2-android-6.1.5/AndroidManifest.xml:13:13-51
+230        <uses-library
+230-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:39:9-41:40
+231            android:name="org.apache.http.legacy"
+231-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:40:13-50
+232            android:required="false" />
+232-->[com.google.android.gms:play-services-maps:18.0.2] /home/dratsisama/.gradle/caches/transforms-3/d0695b375b3ea808581dec9da08f1cd7/transformed/jetified-play-services-maps-18.0.2/AndroidManifest.xml:41:13-37
+233
+234        <activity
+234-->[com.google.android.gms:play-services-base:18.0.1] /home/dratsisama/.gradle/caches/transforms-3/3b2d428fede6c5e3dd9018d5c02cc047/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
+235            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+235-->[com.google.android.gms:play-services-base:18.0.1] /home/dratsisama/.gradle/caches/transforms-3/3b2d428fede6c5e3dd9018d5c02cc047/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:19-85
+236            android:exported="false"
+236-->[com.google.android.gms:play-services-base:18.0.1] /home/dratsisama/.gradle/caches/transforms-3/3b2d428fede6c5e3dd9018d5c02cc047/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:22:19-43
+237            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+237-->[com.google.android.gms:play-services-base:18.0.1] /home/dratsisama/.gradle/caches/transforms-3/3b2d428fede6c5e3dd9018d5c02cc047/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:21:19-78
+238
+239        <meta-data
+239-->[com.google.android.gms:play-services-basement:18.0.0] /home/dratsisama/.gradle/caches/transforms-3/f3d1486e62326ed6a96eb0c188cf7347/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:21:9-23:69
+240            android:name="com.google.android.gms.version"
+240-->[com.google.android.gms:play-services-basement:18.0.0] /home/dratsisama/.gradle/caches/transforms-3/f3d1486e62326ed6a96eb0c188cf7347/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:22:13-58
+241            android:value="@integer/google_play_services_version" />
+241-->[com.google.android.gms:play-services-basement:18.0.0] /home/dratsisama/.gradle/caches/transforms-3/f3d1486e62326ed6a96eb0c188cf7347/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:23:13-66
+242
+243        <uses-library
+243-->[androidx.window:window:1.0.0-beta04] /home/dratsisama/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:25:9-27:40
+244            android:name="androidx.window.extensions"
+244-->[androidx.window:window:1.0.0-beta04] /home/dratsisama/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:26:13-54
+245            android:required="false" />
+245-->[androidx.window:window:1.0.0-beta04] /home/dratsisama/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:27:13-37
+246        <uses-library
+246-->[androidx.window:window:1.0.0-beta04] /home/dratsisama/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:28:9-30:40
+247            android:name="androidx.window.sidecar"
+247-->[androidx.window:window:1.0.0-beta04] /home/dratsisama/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:29:13-51
+248            android:required="false" />
+248-->[androidx.window:window:1.0.0-beta04] /home/dratsisama/.gradle/caches/transforms-3/f302e75fb7efd781bcf1a29281c188da/transformed/jetified-window-1.0.0-beta04/AndroidManifest.xml:30:13-37
+249
+250        <provider
+250-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:24:9-32:20
+251            android:name="androidx.startup.InitializationProvider"
+251-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:25:13-67
+252            android:authorities="com.example.frontend.androidx-startup"
+252-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:26:13-68
+253            android:exported="false" >
+253-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:27:13-37
+254            <meta-data
+254-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:29:13-31:52
+255                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+255-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:30:17-75
+256                android:value="androidx.startup" />
+256-->[androidx.emoji2:emoji2:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/fd5566ded44aaffd1a50ecce95aa3bb6/transformed/jetified-emoji2-1.2.0/AndroidManifest.xml:31:17-49
+257            <meta-data
+257-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:30:13-32:52
+258                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+258-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:31:17-85
+259                android:value="androidx.startup" />
+259-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:32:17-49
+260            <meta-data
+260-->[androidx.lifecycle:lifecycle-process:2.4.1] /home/dratsisama/.gradle/caches/transforms-3/cfdc98f5aeae66cfadfcaab37ee52c42/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:31:13-33:52
+261                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+261-->[androidx.lifecycle:lifecycle-process:2.4.1] /home/dratsisama/.gradle/caches/transforms-3/cfdc98f5aeae66cfadfcaab37ee52c42/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:32:17-78
+262                android:value="androidx.startup" />
+262-->[androidx.lifecycle:lifecycle-process:2.4.1] /home/dratsisama/.gradle/caches/transforms-3/cfdc98f5aeae66cfadfcaab37ee52c42/transformed/jetified-lifecycle-process-2.4.1/AndroidManifest.xml:33:17-49
+263        </provider>
+264
+265        <receiver
+265-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:35:9-47:20
+266            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+266-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:36:13-76
+267            android:directBootAware="false"
+267-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:37:13-44
+268            android:enabled="true"
+268-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:38:13-35
+269            android:exported="true"
+269-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:39:13-36
+270            android:permission="android.permission.DUMP" >
+270-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:40:13-57
+271            <intent-filter>
+271-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:41:13-43:29
+272                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+272-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:42:17-91
+272-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:42:25-88
+273            </intent-filter>
+274            <intent-filter>
+274-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:44:13-46:29
+275                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+275-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:45:17-85
+275-->[androidx.profileinstaller:profileinstaller:1.2.0] /home/dratsisama/.gradle/caches/transforms-3/f702467033bbe41662e9adbdbbc2b4ee/transformed/jetified-profileinstaller-1.2.0/AndroidManifest.xml:45:25-82
+276            </intent-filter>
+277        </receiver>
+278
+279        <meta-data
+279-->[com.google.android.instantapps:instantapps:1.1.0] /home/dratsisama/.gradle/caches/transforms-3/8583e3d6fadab17529dc61b4d5c50e38/transformed/jetified-instantapps-1.1.0/AndroidManifest.xml:10:9-12:33
+280            android:name="aia-compat-api-min-version"
+280-->[com.google.android.instantapps:instantapps:1.1.0] /home/dratsisama/.gradle/caches/transforms-3/8583e3d6fadab17529dc61b4d5c50e38/transformed/jetified-instantapps-1.1.0/AndroidManifest.xml:11:13-54
+281            android:value="1" />
+281-->[com.google.android.instantapps:instantapps:1.1.0] /home/dratsisama/.gradle/caches/transforms-3/8583e3d6fadab17529dc61b4d5c50e38/transformed/jetified-instantapps-1.1.0/AndroidManifest.xml:12:13-30
+282    </application>
+283
+284</manifest>

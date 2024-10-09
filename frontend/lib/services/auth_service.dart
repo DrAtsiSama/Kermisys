@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
-// AUTH : connexion, déconnexion, profil utilisateur
+
 class AuthService {
   final String baseUrl = 'http://217.69.9.54:8080'; // URL de votre backend
 
@@ -12,7 +12,7 @@ class AuthService {
     if (token == null) throw Exception("Token non disponible");
 
     final response = await http.get(
-      Uri.parse('$baseUrl/user/profile'),
+      Uri.parse('$baseUrl/user/me'),
       headers: <String, String>{
         'Authorization': 'Bearer $token',
       },
@@ -37,6 +37,7 @@ class AuthService {
         'password': password,
       },
     );
+
     // Log de la réponse brute
     print('Réponse reçue du serveur :');
     print('Statut de la réponse : ${response.statusCode}');
@@ -49,6 +50,27 @@ class AuthService {
       // Stocker le token dans les SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('jwtToken', token);
+
+      // Option A : Extraire l'ID utilisateur et le rôle du token JWT
+      final userId = extractUserIdFromToken(token);
+      final userRole = extractUserRoleFromToken(token);
+
+      if (userId != null && userRole != null) {
+        await prefs.setInt('userId', userId);
+        await prefs.setString('userRole', userRole);
+        print('User ID stored: $userId');
+        print('User Role stored: $userRole');
+      } else {
+        // Option B : Récupérer le profil de l'utilisateur pour obtenir l'ID et le rôle
+        final profileData = await getProfile();
+        final userId = profileData['id'];
+        final userRole = profileData['role'];
+
+        await prefs.setInt('userId', userId);
+        await prefs.setString('userRole', userRole);
+        print('User ID stored from profile: $userId');
+        print('User Role stored from profile: $userRole');
+      }
 
       return token;
     } else {
@@ -64,8 +86,75 @@ class AuthService {
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwtToken');
+    await prefs.remove('userId');
+    await prefs.remove('userRole');
   }
 
+  Future<int?> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('userId');
+  }
+
+  Future<String?> getUserRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userRole');
+  }
+
+  // Méthode pour extraire l'ID de l'utilisateur du token
+  int? extractUserIdFromToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      return null;
+    }
+
+    final payload = base64Url.decode(base64Url.normalize(parts[1]));
+    final Map<String, dynamic> decodedPayload = jsonDecode(utf8.decode(payload));
+
+    // Assurez-vous que le payload contient bien l'ID de l'utilisateur
+    if (decodedPayload.containsKey('userID')) {
+      return decodedPayload['userID'];
+    } else if (decodedPayload.containsKey('id')) {
+      return decodedPayload['id'];
+    } else {
+      return null;
+    }
+  }
+
+  // Méthode pour extraire le rôle de l'utilisateur du token
+  String? extractUserRoleFromToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      return null;
+    }
+
+    final payload = base64Url.decode(base64Url.normalize(parts[1]));
+    final Map<String, dynamic> decodedPayload = jsonDecode(utf8.decode(payload));
+
+    // Assurez-vous que le payload contient bien le rôle de l'utilisateur
+    if (decodedPayload.containsKey('role')) {
+      return decodedPayload['role'];
+    } else {
+      return null;
+    }
+  }
+
+  // Méthode pour extraire le nom d'utilisateur du token
+  String? extractUsernameFromToken(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      return null;
+    }
+
+    final payload = base64Url.decode(base64Url.normalize(parts[1]));
+    final Map<String, dynamic> decodedPayload = jsonDecode(utf8.decode(payload));
+
+    // Assurez-vous que le payload contient bien le nom d'utilisateur
+    if (decodedPayload.containsKey('username')) {
+      return decodedPayload['username'];
+    } else {
+      return null;
+    }
+  }
   // Nouvelle méthode pour récupérer les infos utilisateur
   Future<User?> getUserProfile({String? username}) async {
     final token = await getToken();
@@ -93,19 +182,50 @@ class AuthService {
     }
   }
 
+  // Nouvelle méthode pour récupérer les tokens de l'utilisateur
+  Future<int?> getUserTokens() async {
+    final token = await getToken();
+    if (token == null) throw Exception("Token non disponible");
 
-  String? extractUsernameFromToken(String token) {
-    // Divise le token JWT en ses trois parties : en-tête, payload et signature
-    final parts = token.split('.');
-    if (parts.length != 3) {
-      return null; // Si le token n'est pas correct, renvoie null
+    final response = await http.get(
+      Uri.parse('$baseUrl/user/tokens'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return data['tokens']; // Supposons que l'API renvoie un champ "tokens"
+    } else {
+      throw Exception("Erreur lors de la récupération des tokens");
     }
-
-    // Décode la partie payload (base64Url) du token
-    final payload = base64Url.decode(base64Url.normalize(parts[1]));
-    final Map<String, dynamic> decodedPayload = jsonDecode(utf8.decode(payload));
-
-    // Récupère le `username` à partir du payload (assurez-vous que votre token contient bien cette information)
-    return decodedPayload['username'];
   }
+
+
+  Future<bool> register(String username, String email, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': username,
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    return response.statusCode == 201;
+  }
+
+  Future<bool> forgotPassword(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/forgot-password'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    return response.statusCode == 200;
+  }
+
+
 }

@@ -13,7 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   Future<void> _login() async {
-    final username = _usernameController.text;
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
     final token = await _authService.login(username, password);
@@ -37,10 +37,13 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Connexion')),
+      appBar: AppBar(
+        title: Text('Connexion'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          // Centrer le contenu verticalement
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
@@ -61,6 +64,19 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 20),
               Text(_errorMessage!, style: TextStyle(color: Colors.red)),
             ],
+            SizedBox(height: 20),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
+              child: Text('Créer un compte'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/forgot_password');
+              },
+              child: Text('Mot de passe oublié ?'),
+            ),
           ],
         ),
       ),
